@@ -60,6 +60,8 @@ O sistema atual apresenta dados dispersos, gerando redundância, falhas e dificu
 
 ## IMPLEMENTACAO
 
+> SGBD -> MySQL
+
 ### 6. ESTRUTURA 
 
 #### **Arquivos SQL**
@@ -230,4 +232,3 @@ sigepoli/
 - [ ] `vw_custos_servicos_mes` - Resumo de custos mensais
 
 ---
-

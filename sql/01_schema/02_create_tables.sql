@@ -15,7 +15,7 @@
 -- Define os cursos oferecidos pela instituição
 CREATE TABLE IF NOT EXISTS courses (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE, -- Nome do curso
+    name VARCHAR(100) NOT NULL, -- Nome do curso
     description TEXT, -- Descrição do curso
     duration_semesters INT NOT NULL, -- Duração em semestres (nome mais descritivo)
     department_id INT NOT NULL, -- Departamento responsável pelo curso
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS courses (
         'discontinued'
     ) NOT NULL DEFAULT 'active', -- ENUM para status do curso
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE DISCIPLINAS
@@ -44,11 +44,11 @@ CREATE TABLE IF NOT EXISTS courses (
 CREATE TABLE IF NOT EXISTS subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL, -- Nome da disciplina
-    code VARCHAR(20) NOT NULL UNIQUE, -- Código único da disciplina
+    code VARCHAR(20) NOT NULL, -- Código único da disciplina
     description TEXT, -- Descrição do conteúdo da disciplina
     workload_hours INT NOT NULL, -- Carga horária em horas
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE INFORMAÇÕES DA DISCIPLINA
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS course_subjects (
     syllabus TEXT, -- Programa detalhado da disciplina
     is_mandatory BOOLEAN NOT NULL DEFAULT true, -- Se a disciplina é obrigatória ou optativa
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE DISPONIBILIDADE DE CURSOS
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS course_availability (
     student_limit INT NOT NULL, -- Limite máximo de alunos
     prerequisites JSON, -- Lista de pré-requisitos para se candidatar ao curso
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE TURMAS
@@ -81,12 +81,12 @@ CREATE TABLE IF NOT EXISTS course_availability (
 CREATE TABLE IF NOT EXISTS classes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(20) NOT NULL, -- Nome da turma
-    code VARCHAR(10) NOT NULL UNIQUE, -- Código único da turma (corrigido de 'sigla')
+    code VARCHAR(10) NOT NULL, -- Código único da turma (corrigido de 'sigla')
     course_id INT NOT NULL, -- Curso ao qual a turma pertence
     academic_year INT NOT NULL, -- Ano letivo
     semester INT NOT NULL, -- Semestre (1 ou 2)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE HORÁRIOS
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS time_slots (
     end_time TIME NOT NULL, -- Horário de término
     hours INT NOT NULL, -- Duração em horas
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE HORÁRIOS DAS TURMAS
@@ -122,19 +122,19 @@ CREATE TABLE IF NOT EXISTS class_schedules (
     class_id INT NOT NULL, -- ID da turma
     subject_id INT NOT NULL, -- Disciplina ministrada nesta turma
     teacher_id INT NOT NULL, -- ID do professor responsável
-    time_slot_ids INT NOT NULL, -- ID do horário {"1", "2", "3"} (lista de IDs de time_slots)
+    time_slot_ids JSON NOT NULL, -- IDs dos horários [1, 2, 3] (lista de IDs de time_slots)
     room_id INT, -- Sala onde as aulas são ministradas
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE SALAS
 -- Define as salas disponíveis na instituição
 CREATE TABLE IF NOT EXISTS rooms (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE, -- Nome da sala
+    name VARCHAR(50) NOT NULL, -- Nome da sala
     description TEXT, -- Descrição da sala (opcional)
-    localization TEXT UNIQUE, -- Localização da sala (ex: prédio, andar, etc.)
+    localization TEXT, -- Localização da sala (ex: prédio, andar, etc.)
     capacity INT NOT NULL, -- Capacidade máxima de alunos
     type_of_room ENUM(
         'classroom', -- Sala de aula tradicional
@@ -147,24 +147,24 @@ CREATE TABLE IF NOT EXISTS rooms (
     acessibility BOOLEAN DEFAULT FALSE, -- Se a sala é acessível para pessoas com deficiência
     is_available BOOLEAN DEFAULT FALSE, -- Disponibilidade da sala
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE RECURSOS
 -- Define os recursos disponíveis na instituição
 CREATE TABLE IF NOT EXISTS resources (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE, -- Nome do recurso (ex: projetor, ar-condicionado)
+    name VARCHAR(50) NOT NULL, -- Nome do recurso (ex: projetor, ar-condicionado)
     description TEXT, -- Descrição do recurso
     responsible_department_id INT NOT NULL, -- Departamento responsável pelo recurso
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE RECURSOS Por SALA
 -- Define os recursos disponíveis em cada sala de aula
 CREATE TABLE IF NOT EXISTS room_resources (
-    id INT AUTO_INCREMENT  PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     room_id INT NOT NULL, -- ID da sala
     resource_id INT NOT NULL, -- ID do recurso
     status_resources ENUM(
@@ -174,9 +174,8 @@ CREATE TABLE IF NOT EXISTS room_resources (
         'maintenance', -- Recurso em manutenção
         'lost' -- Recurso perdido
     ) NOT NULL DEFAULT 'available', -- Status do recurso
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ;
-
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE RESERVAS DE SALAS
@@ -197,19 +196,19 @@ CREATE TABLE IF NOT EXISTS room_bookings (
         'completed' -- Reserva concluída
     ) NOT NULL DEFAULT 'pending', -- Status da reserva
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE ALunOS
 -- Armazena informações dos alunos
 CREATE TABLE IF NOT EXISTS students (
     user_id INT NOT NULL, -- Referencia users.id
-    student_number VARCHAR(50) UNIQUE NOT NULL, -- Número de matrícula único
+    student_number VARCHAR(50) NOT NULL, -- Número de matrícula único
     studying BOOLEAN DEFAULT TRUE, -- Se o aluno está ativo
     searching BOOLEAN DEFAULT TRUE, -- Se o aluno está procurando emprego
     recommendation TEXT, -- Recomendações ou observações sobre o aluno
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE INSCRIÇÃO DE ALUNOS
@@ -229,7 +228,7 @@ CREATE TABLE IF NOT EXISTS student_enrollments (
     ) NOT NULL DEFAULT 'active', -- Status da matrícula
     conclusion_date DATE NOT NULL DEFAULT CURRENT_DATE, -- Data de conclusão
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE MATRÍCULAS EM TURMAS
@@ -246,13 +245,13 @@ CREATE TABLE IF NOT EXISTS class_enrollments (
         'failed'
     ) NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE PROFESSORES
 -- Armazena informações dos professores
 CREATE TABLE IF NOT EXISTS teachers (
-    staff_id INT NOT NULL, -- Referência ao staff
+    user_id INT NOT NULL, -- Referência ao staff
     academic_rank ENUM(
         'instructor',
         'assistant_professor',
@@ -271,8 +270,7 @@ CREATE TABLE IF NOT EXISTS teachers (
     research_area TEXT,
     is_thesis_advisor BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (staff_id) REFERENCES staff (id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE ESPECIALIZAÇÕES DE PROFESSORES
@@ -291,7 +289,7 @@ CREATE TABLE IF NOT EXISTS teacher_specializations (
     years_experience INT DEFAULT 0,
     is_certified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (teacher_id) REFERENCES teachers (id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE HORARIOS DISPONIVEIS POR PROFESSOR
@@ -303,7 +301,7 @@ CREATE TABLE IF NOT EXISTS teacher_availability (
     total_hours INT NOT NULL, -- Total de horas semanais disponíveis
     aproved BOOLEAN DEFAULT FALSE, -- Se o horário foi aprovado pelo coordenado
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE NOTAS
@@ -315,7 +313,7 @@ CREATE TABLE IF NOT EXISTS grades (
     assessment_type_id INT NOT NULL, -- ID do tipo de avaliação
     score DECIMAL(5, 2) NOT NULL, -- Nota obtida (0-100)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE TIPOS DE AVALIAÇÃO
@@ -323,12 +321,13 @@ CREATE TABLE IF NOT EXISTS grades (
 -- Podem ser configuráveis (PP1, PP2, Exame Final, Recuperação, Especial)
 CREATE TABLE assessment_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(20) NOT NULL UNIQUE,
+    code VARCHAR(20) NOT NULL, -- Código único
     name VARCHAR(50) NOT NULL,
     description TEXT,
     weight DECIMAL(5, 2), -- Peso da avaliação
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE FREQUÊNCIA
@@ -345,7 +344,7 @@ CREATE TABLE IF NOT EXISTS attendance (
     ) NOT NULL DEFAULT 'present',
     justification TEXT, -- Justificativa para falta (se aplicável)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Aulas ministradas
@@ -356,7 +355,7 @@ CREATE TABLE IF NOT EXISTS classes_attended (
     class_date DATE NOT NULL, -- Data da aula
     time_slot_id INT NOT NULL, -- Horário da aula
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- ==========================================================================================
@@ -372,7 +371,7 @@ CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL, -- Primeiro nome do usuário
     last_name VARCHAR(50) NOT NULL, -- Sobrenome do usuário
-    email VARCHAR(100) UNIQUE NOT NULL, -- Email único para comunicação
+    email VARCHAR(100) NOT NULL, -- Email único para comunicação
     password VARCHAR(255) NOT NULL, -- Senha criptografada
     phone VARCHAR(20), -- Telefone de contato
     address TEXT, -- Endereço completo
@@ -387,7 +386,7 @@ CREATE TABLE IF NOT EXISTS users (
     profile_picture TEXT, -- URL da foto de perfil
     is_verified BOOLEAN DEFAULT FALSE, -- Se o usuário verificou seu email
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Corrigido de 'last_update' para 'updated_at'
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE PAPÉIS DE USUÁRIOS
@@ -395,7 +394,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Papel: super_admin, admin, student, staff,
 CREATE TABLE IF NOT EXISTS user_roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(20) NOT NULL UNIQUE,
+    code VARCHAR(20) NOT NULL, -- Código único
     name VARCHAR(50) NOT NULL,
     description TEXT,
     permissions JSON,
@@ -415,6 +414,8 @@ CREATE TABLE IF NOT EXISTS user_role_assignments (
     assigned_by INT, -- Quem atribuiu o papel
     is_active BOOLEAN DEFAULT TRUE,
     expires_at TIMESTAMP NULL, -- Para papéis temporários
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE IDENTIFICAÇÃO DE USUÁRIOS
@@ -427,12 +428,12 @@ CREATE TABLE IF NOT EXISTS user_identification (
         'passport', -- Passaporte
         'other' -- Outros tipos de documentos
     ) NOT NULL,
-    document_number VARCHAR(20) NOT NULL UNIQUE, -- Número do documento único
+    document_number VARCHAR(20) NOT NULL, -- Número do documento único
     issue_date DATE, -- Data de emissão do documento
     expiration_date DATE, -- Data de expiração do documento (se aplicável)
     nationality VARCHAR(50), -- Nacionalidade do usuário
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE SAUDE DO USUÁRIO
@@ -454,15 +455,15 @@ CREATE TABLE IF NOT EXISTS user_health (
     ) NOT NULL, -- Relacionamento com o contato de emergência
     emergency_contact_phone VARCHAR(20), -- Telefone do contato de emergência
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE DEPARTAMENTOS
 -- Organiza a estrutura administrativa da instituição
 CREATE TABLE IF NOT EXISTS departments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE, -- Nome completo do departamento
-    acronym VARCHAR(10) NOT NULL UNIQUE, -- Sigla do departamento (corrigido de 'sigla')
+    name VARCHAR(100) NOT NULL, -- Nome completo do departamento
+    acronym VARCHAR(10) NOT NULL, -- Sigla do departamento (corrigido de 'sigla')
     description TEXT, -- Descrição das atividades do departamento
     head_user_id INT NOT NULL, -- ID do chefe do departamento (referencia users.id)
     status ENUM(
@@ -478,12 +479,12 @@ CREATE TABLE IF NOT EXISTS departments (
         'support' -- Departamento de suporte
     ) NOT NULL DEFAULT 'academic', -- Classificação do departamento
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE ORÇAMENTOS POR DEPARTAMENTO
 -- Armazena o orçamento anual de cada departamento
-CREATE TABLE IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS department_budgets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     department_id INT NOT NULL, -- ID do departamento
     fiscal_year INT NOT NULL, -- Ano fiscal (nome mais descritivo)
@@ -492,14 +493,14 @@ CREATE TABLE IF NOT EXISTS (
     remaining_amount DECIMAL(15, 2) DEFAULT 0.00, -- Valor restante
     on_account BOOLEAN DEFAULT FALSE, -- Se o orçamento está em conta
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURdepartment_budgetsRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE FUNCIONÁRIOS
 -- Armazena informações dos funcionários administrativos
 CREATE TABLE IF NOT EXISTS staff (
     user_id INT NOT NULL, -- Referencia users.id
-    staff_number VARCHAR(50) UNIQUE NOT NULL, -- Número de identificação do funcionário
+    staff_number VARCHAR(50) NOT NULL, -- Número de identificação do funcionário
     hire_date DATE NOT NULL DEFAULT CURRENT_DATE, -- Data de contratação
     employment_type ENUM(
         'full_time',
@@ -532,7 +533,7 @@ CREATE TABLE IF NOT EXISTS staff (
         'former'
     ) NOT NULL DEFAULT 'active', -- Status do funcionário
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE QUALIFICAÇÕES DOS FUNCIONÁRIOS
@@ -557,18 +558,18 @@ CREATE TABLE IF NOT EXISTS academic_qualifications (
     document_url TEXT, -- URL do documento comprobatório
     is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE CARGOS
 -- Define os cargos ou funções dos funcionários administrativos
 CREATE TABLE IF NOT EXISTS positions (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE, -- Nome do cargo
+    name VARCHAR(100) NOT NULL, -- Nome do cargo
     description TEXT, -- Descrição das responsabilidades do cargo
     amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00, -- Salário do cargo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE FUNCIONÁRIOS POR CARGO
@@ -587,7 +588,7 @@ CREATE TABLE IF NOT EXISTS staff_positions (
         'terminated'
     ) NOT NULL DEFAULT 'active', -- Status do cargo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE FÉRIAS E LICENÇAS
@@ -617,7 +618,7 @@ CREATE TABLE IF NOT EXISTS staff_leaves (
     ) NOT NULL DEFAULT 'pending', -- Status da licença
     replacement_staff_id INT, -- ID do funcionário substituto (referencia users.id - opcional)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE AVALIAÇÕES
@@ -659,7 +660,7 @@ CREATE TABLE IF NOT EXISTS evaluation (
         'disputed', -- Avaliação contestada
     ) DEFAULT 'started', -- Status da avaliação
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE AVALIAÇÕES DE DESEMPENHO
@@ -669,7 +670,7 @@ CREATE TABLE IF NOT EXISTS staff_evaluation (
     evaluation_id INT NOT NULL, -- Referencia evaluation.id
     staff_id INT NOT NULL, -- Referencia users.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE AVALIAÇÕES DE CURSOS
@@ -679,7 +680,7 @@ CREATE TABLE IF NOT EXISTS course_evaluation (
     evaluation_id INT NOT NULL, -- Referencia evaluation.id
     course_id INT NOT NULL, -- ID do curso avaliado (referencia courses.id)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE PERFORMANCE
@@ -690,8 +691,8 @@ CREATE TABLE IF NOT EXISTS performance (
     evaluation_id INT NOT NULL, -- Referencia evaluation.id
     evaluator_id INT NOT NULL, -- ID do avaliador (referencia users.id)
     evaluation_date DATE NOT NULL, -- Data da avaliação
-    overall_score DECIMAL(3, 2) CHECK (overall_score BETWEEN 0 AND 5), -- Nota geral da avaliação (0-5)
-    score INT CHECK (score BETWEEN 0 AND 5), -- Nota da avaliação
+    overall_score DECIMAL(3, 2), -- Nota geral da avaliação (0-5)
+    score INT, -- Nota da avaliação
     feedback TEXT, -- Comentários do avaliador
     status ENUM(
         'draft',
@@ -701,7 +702,7 @@ CREATE TABLE IF NOT EXISTS performance (
         'disputed'
     ) DEFAULT 'draft',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE ACESSO DE ALUNOS NO CURSO
@@ -718,14 +719,14 @@ CREATE TABLE IF NOT EXISTS course_access (
         'waitlisted' -- Em lista de espera
     ) NOT NULL DEFAULT 'pending', -- Status da inscrição
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE SERVIÇOS
 -- Registra os serviços prestados pela instituição aos alunos (secretaria academica, biblioteca, etc.)
 CREATE TABLE IF NOT EXISTS services (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE, -- Nome do serviço 
+    name VARCHAR(100) NOT NULL, -- Nome do serviço 
     description TEXT, -- Descrição do serviço
     service_types_id INT NOT NULL, -- ID do tipo de serviço 
     value DECIMAL(10, 2) NOT NULL, -- Valor do serviço
@@ -737,17 +738,17 @@ CREATE TABLE IF NOT EXISTS services (
         'discontinued'
     ) NOT NULL DEFAULT 'active', -- Status do serviço
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE CATEGORIA DE SERVIÇOS
 -- Define as categorias de serviços oferecidos pela instituição
 CREATE TABLE IF NOT EXISTS service_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE, -- Nome da categoria de serviço
+    name VARCHAR(50) NOT NULL, -- Nome da categoria de serviço
     description TEXT, -- Descrição da categoria de serviço
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE AVALIAÇÕES DE SERVIÇOS
@@ -757,7 +758,7 @@ CREATE TABLE IF NOT EXISTS service_evaluation (
     evaluation_id INT NOT NULL, -- Referencia evaluation.id
     service_id INT NOT NULL, -- ID da empresa prestadora de serviço (referencia users.id)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 --TABELA DE PAGAMENTOS
@@ -767,7 +768,7 @@ CREATE TABLE IF NOT EXISTS payments (
     amount DECIMAL(10, 2) NOT NULL, -- Valor pago
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Data do pagamento
     payment_method_id INT NOT NULL, -- ID do método de pagamento (referencia payment_types.id)
-    reference_number VARCHAR(50) UNIQUE, -- Número de referência do pagamento
+    reference_number VARCHAR(50), -- Número de referência do pagamento
     status ENUM(
         'pending', -- Pendente
         'completed', -- Concluído
@@ -775,7 +776,7 @@ CREATE TABLE IF NOT EXISTS payments (
         'refunded' -- Reembolsado
     ) NOT NULL DEFAULT 'pending', -- Status do pagamento
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE PAGAMENTOS POR SERVIÇO
@@ -786,7 +787,7 @@ CREATE TABLE IF NOT EXISTS studant_payments (
     service_id INT NOT NULL, -- ID do serviço pago (referencia services.id)
     student_id INT NOT NULL, -- ID do aluno que pagou (referencia students.user_id)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE PAGAMENTOS A EMPRESAS
@@ -798,7 +799,7 @@ CREATE TABLE IF NOT EXISTS company_payments (
     department_budgets_id INT NOT NULL, -- ID do orçamento do departamento (referencia department_budgets.id)
     approved_by_staff INT NOT NULL, -- ID do funcionario que aprovou o pagamento (referencia users.id)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE PAGAMENTOS A FUNCIONÁRIOS
@@ -815,17 +816,17 @@ CREATE TABLE IF NOT EXISTS staff_payments (
     payment_id INT NOT NULL, -- Referencia payments.id
     staff_id INT NOT NULL, -- ID do funcionário que recebeu o pagamento (referencia users.id)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE TIPOS DE PAGAMENTO
 -- Define os tipos de pagamento disponíveis para os serviços
 CREATE TABLE IF NOT EXISTS payment_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE, -- Nome do tipo de pagamento
+    name VARCHAR(50) NOT NULL, -- Nome do tipo de pagamento
     description TEXT, -- Descrição do tipo de pagamento
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 --  TABELA DE MULTAS (ALUNOS EMPRESAS)
@@ -840,7 +841,7 @@ CREATE TABLE IF NOT EXISTS fines (
     amount DECIMAL(10, 2) NOT NULL, -- Valor da multa
     reason VARCHAR(255) NOT NULL, -- Motivo da multa
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- ==========================================================================================
@@ -860,12 +861,12 @@ CREATE TABLE IF NOT EXISTS fines (
 CREATE TABLE IF NOT EXISTS companies (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    nif VARCHAR(20) NOT NULL UNIQUE,
+    nif VARCHAR(20) NOT NULL, -- NIF único da empresa
     address VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     email VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE EMPRESAS POR DEPARTAMENTO
@@ -875,7 +876,7 @@ CREATE TABLE IF NOT EXISTS companies_departments (
     company_id INT NOT NULL, -- ID da empresa (referencia companies.id)
     department_id INT NOT NULL, -- ID do departamento (referencia departments.id)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE CONTRATOS DE EMPRESAS
@@ -895,7 +896,7 @@ CREATE TABLE IF NOT EXISTS companies_contracts (
     signed_by_staff INT NOT NULL, -- ID do funcionario que assinou o contrato (referencia users.id)
     signed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Data de assinatura do contrato
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE SLA (Service Level Agreement)
@@ -912,41 +913,29 @@ CREATE TABLE IF NOT EXISTS companies_sla (
         'quality', -- SLA de qualidade
         'other' -- Outro tipo de SLA
     ) NOT NULL, -- Tipo do SLA
+    target_percentage DECIMAL(5, 2) NOT NULL DEFAULT 90.00, -- Percentual alvo do SLA
+    penalty_percentage DECIMAL(5, 2) DEFAULT 10.00, -- Percentual de penalidade se não atingir
     sla_details TEXT NOT NULL, -- Detalhes do SLA
+    is_active BOOLEAN DEFAULT TRUE, -- Se o SLA está ativo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- TABELA DE SLA AVALIAÇÕES
 -- Registra as avaliações dos SLA das empresas terceirizadas
 CREATE TABLE IF NOT EXISTS companies_sla_evaluation (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    evaluation_id INT NOT NULL, -- Referencia evaluation.id
     company_id INT NOT NULL, -- ID da empresa avaliada (referencia companies.id)
     sla_id INT NOT NULL, -- ID do SLA avaliado (referencia companies_sla.id)
-    overall_score DECIMAL(3, 2) CHECK (overall_score BETWEEN 0 AND 5), -- Nota geral da avaliação (0-5)
+    evaluation_period DATE NOT NULL, -- Período de avaliação (mês/ano)
+    achieved_percentage DECIMAL(5, 2) NOT NULL, -- Percentual alcançado
+    penalty_applied BOOLEAN DEFAULT FALSE, -- Se foi aplicada penalidade
+    penalty_amount DECIMAL(10, 2) DEFAULT 0.00, -- Valor da penalidade
+    evaluator_id INT NOT NULL, -- ID do avaliador (referencia users.id)
     feedback TEXT, -- Comentários do avaliador
-    status ENUM(
-        'draft',
-        'submitted',
-        'reviewed',
-        'approved',
-        'disputed'
-    ) DEFAULT 'draft', -- Status da avaliação
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
--- TABELA DE SLA DEFINITIONS
--- Define os termos e condições dos SLA das empresas terceirizadas
-CREATE TABLE IF NOT EXISTS companies_sla_definitions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    sla_id INT NOT NULL, -- ID do SLA (referencia companies_sla.id)
-    definition_details TEXT NOT NULL, -- Detalhes da definição
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 
 -- ==========================================================================================
 -- AUDITORIA E CONFIGURAÇÃO DO SISTEMA
@@ -960,7 +949,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     table_name VARCHAR(50) NOT NULL, -- Nome da tabela afetada
     operation_type ENUM(
         'INSERT',
-        'UPDATE', 
+        'UPDATE',
         'DELETE',
         'LOGIN',
         'LOGOUT',
@@ -987,9 +976,9 @@ CREATE TABLE IF NOT EXISTS audit_logs (
         'WARNING'
     ) NOT NULL DEFAULT 'SUCCESS', -- Status da operação
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     execution_time_ms INT DEFAULT 0 -- Tempo de execução em milissegundos
 );
-
 
 -- ==========================================================================================
 -- BIBLIOTECA
@@ -1000,10 +989,8 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 CREATE TABLE IF NOT EXISTS library_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL, -- Título do item
-    subtitle VARCHAR(255), -- Subtítulo (se aplicável)
     isbn VARCHAR(20), -- ISBN para livros
-    issn VARCHAR(20), -- ISSN para periódicos
-    barcode VARCHAR(50) UNIQUE, -- Código de barras único
+    barcode VARCHAR(50), -- Código de barras único
     item_type ENUM(
         'book',
         'journal',
@@ -1016,65 +1003,40 @@ CREATE TABLE IF NOT EXISTS library_items (
         'computer',
         'equipment',
         'digital_resource',
-        'manuscript',
-        'map',
         'other'
     ) NOT NULL, -- Tipo do item
     format ENUM(
         'physical',
         'digital',
         'audiobook',
-        'ebook',
-        'mixed'
+        'ebook'
     ) NOT NULL DEFAULT 'physical', -- Formato do item
     language VARCHAR(10) DEFAULT 'pt', -- Idioma do item (código ISO)
     author VARCHAR(255), -- Autor principal
-    co_authors TEXT, -- Co-autores (separados por vírgula)
     publisher VARCHAR(255), -- Editora
     publication_year YEAR, -- Ano de publicação
-    edition VARCHAR(50), -- Edição
-    pages INT, -- Número de páginas
-    volume VARCHAR(20), -- Volume (para coleções)
-    issue VARCHAR(20), -- Número da edição (para periódicos)
     subject_area VARCHAR(100), -- Área temática
-    keywords TEXT, -- Palavras-chave (separadas por vírgula)
-    classification_code VARCHAR(50), -- Código de classificação (Dewey, CDU, etc.)
     location VARCHAR(100), -- Localização física na biblioteca
     acquisition_date DATE, -- Data de aquisição
-    acquisition_type ENUM(
-        'purchase',
-        'donation',
-        'exchange',
-        'subscription',
-        'digital_license'
-    ) DEFAULT 'purchase', -- Tipo de aquisição
     acquisition_cost DECIMAL(10, 2), -- Custo de aquisição
-    supplier VARCHAR(255), -- Fornecedor
     condition_status ENUM(
         'excellent',
         'good',
         'fair',
         'poor',
         'damaged',
-        'lost',
-        'missing'
+        'lost'
     ) DEFAULT 'excellent', -- Estado de conservação
     availability_status ENUM(
         'available',
         'checked_out',
         'reserved',
-        'in_processing',
         'maintenance',
-        'restricted',
         'unavailable'
     ) DEFAULT 'available', -- Status de disponibilidade
-    is_reference_only BOOLEAN DEFAULT FALSE, -- Se é apenas para consulta local
-    max_loan_time TIMESTAMP DEFAULT  CURRENT_TIMESTAMP + INTERVAL 15 DAY, 
+    max_loan_days INT DEFAULT 15, -- Dias máximos de empréstimo
     renewal_limit INT DEFAULT 2, -- Limite de renovações
     description TEXT, -- Descrição ou resumo do item
-    notes TEXT, -- Observações internas
-    digital_url TEXT, -- URL para recursos digitais
-    thumbnail_url TEXT, -- URL da capa/imagem
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -1089,43 +1051,16 @@ CREATE TABLE IF NOT EXISTS library_loans (
     due_date TIMESTAMP NOT NULL, -- Data de devolução prevista
     return_date TIMESTAMP, -- Data da devolução efetiva
     renewal_count INT DEFAULT 0, -- Número de renovações
-    loan_type ENUM(
-        'standard',
-        'extended',
-        'short_term',
-        'overnight',
-        'reference',
-        'interlibrary',
-        'faculty_loan'
-    ) DEFAULT 'standard', -- Tipo de empréstimo
     status ENUM(
         'active', -- Empréstimo ativo
         'returned', -- Devolvido
         'overdue', -- Em atraso
-        'renewed', -- Renovado
         'lost', -- Perdido
-        'damaged', -- Danificado
-        'cancelled' -- Cancelado
+        'damaged' -- Danificado
     ) NOT NULL DEFAULT 'active', -- Status do empréstimo
-    condition_at_loan ENUM(
-        'excellent',
-        'good',
-        'fair',
-        'poor'
-    ) DEFAULT 'good', -- Condição do item no empréstimo
-    condition_at_return ENUM(
-        'excellent',
-        'good',
-        'fair',
-        'poor',
-        'damaged'
-    ), -- Condição do item na devolução
     late_fee_amount DECIMAL(8, 2) DEFAULT 0.00, -- Valor da multa por atraso
     damage_fee_amount DECIMAL(8, 2) DEFAULT 0.00, -- Valor da multa por danos
-    replacement_cost DECIMAL(10, 2), -- Custo de reposição se perdido
     notes TEXT, -- Observações sobre o empréstimo
-    processed_by_staff INT, -- ID do funcionário que processou
-    returned_to_staff INT, -- ID do funcionário que recebeu a devolução
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -1139,50 +1074,16 @@ CREATE TABLE IF NOT EXISTS notifications (
     message TEXT NOT NULL, -- Conteúdo da notificação
     notification_type ENUM(
         'system', -- Notificação do sistema
-        'academic', -- Notificação acadêmica (notas, matrículas, etc.)
+        'academic', -- Notificação acadêmica
         'administrative', -- Notificação administrativa
-        'financial', -- Notificação financeira (pagamentos, multas, etc.)
+        'financial', -- Notificação financeira
         'library', -- Notificação da biblioteca
-        'evaluation', -- Notificação de avaliação
-        'schedule', -- Notificação de horário/agenda
-        'general', -- Notificação geral
-        'urgent', -- Notificação urgente
-        'reminder', -- Lembrete
-        'announcement', -- Anúncio
-        'alert' -- Alerta
+        'general' -- Notificação geral
     ) NOT NULL DEFAULT 'general', -- Tipo de notificação
-    priority ENUM(
-        'low',
-        'medium',
-        'high',
-        'critical'
-    ) NOT NULL DEFAULT 'medium', -- Prioridade da notificação
-    category ENUM(
-        'info', -- Informativa
-        'warning', -- Aviso
-        'error', -- Erro
-        'success' -- Sucesso
-    ) NOT NULL DEFAULT 'info', -- Categoria da notificação
     status ENUM(
         'unread', -- Não lida
-        'read', -- Lida
-        'archived', -- Arquivada
-        'deleted' -- Deletada
+        'read' -- Lida
     ) NOT NULL DEFAULT 'unread', -- Status da notificação
-    delivery_method ENUM(
-        'in_app', -- Dentro da aplicação
-        'email', -- Por email
-        'sms', -- Por SMS
-        'push', -- Notificação push
-        'multiple' -- Múltiplos métodos
-    ) NOT NULL DEFAULT 'in_app', -- Método de entrega
-    is_persistent BOOLEAN DEFAULT FALSE, -- Se a notificação deve permanecer até ser lida
-    expires_at TIMESTAMP, -- Data de expiração da notificação
-    read_at TIMESTAMP, -- Data/hora em que foi lida
-    archived_at TIMESTAMP, -- Data/hora em que foi arquivada
-    action_url VARCHAR(500), -- URL de ação (para notificações interativas)
-    action_label VARCHAR(100), -- Rótulo do botão de ação
-    metadata JSON, -- Dados adicionais em formato JSON
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

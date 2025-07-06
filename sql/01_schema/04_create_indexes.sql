@@ -2,6 +2,28 @@
 -- SISTEMA DE GESTÃO ESCOLAR POLITÉCNICA (SIGEPOLI)
 -- Índices para Otimização de Performance
 -- ==============================================================
+--
+-- OBJETIVO: Este arquivo cria índices estratégicos para otimizar consultas frequentes:
+-- 1. PERFORMANCE DE CONSULTAS: Acelerar buscas por campos frequentemente consultados
+-- 2. RELATÓRIOS: Otimizar consultas de relatórios (carga horária, pagamentos, etc.)
+-- 3. REGRAS DE NEGÓCIO: Suportar validações (RN01: evitar sobreposição de horários)
+-- 4. AUDITORIA: Facilitar consultas de logs e histórico
+--
+-- ESTRUTURA:
+-- - ÍNDICES SIMPLES: Para campos únicos (email, códigos, números)
+-- - ÍNDICES COMPOSTOS: Para consultas complexas (curso+ano+semestre)
+-- - ÍNDICES FUNCIONAIS: Para consultas específicas (datas, status)
+-- - ÍNDICES ESTRATÉGICOS: Para relatórios frequentes e validações
+--
+-- CATEGORIAS:
+-- - ACADÉMICOS: Notas, matrículas, horários, frequência
+-- - ADMINISTRATIVOS: Usuários, departamentos, funcionários
+-- - FINANCEIROS: Pagamentos, multas, orçamentos
+-- - OPERACIONAIS: SLA, contratos, empresas
+-- - SUPORTE: Biblioteca, notificações, auditoria
+--
+-- IMPORTANTE: Este arquivo deve ser executado APÓS as constraints (03_create_constraints.sql)
+-- ==============================================================
 
 -- ==========================================================================================
 -- ÍNDICES ACADÉMICOS
@@ -41,7 +63,8 @@ CREATE INDEX idx_class_schedules_class ON class_schedules(class_id);
 CREATE INDEX idx_class_schedules_teacher ON class_schedules(teacher_id);
 CREATE INDEX idx_class_schedules_subject ON class_schedules(subject_id);
 CREATE INDEX idx_class_schedules_room ON class_schedules(room_id);
-CREATE INDEX idx_class_schedules_teacher_time ON class_schedules(teacher_id, time_slot_ids);
+-- Índice para JSON não é suportado diretamente, usar coluna gerada se necessário
+-- CREATE INDEX idx_class_schedules_teacher_time ON class_schedules(teacher_id, time_slot_ids);
 
 -- SALAS
 CREATE INDEX idx_rooms_type ON rooms(type_of_room);
@@ -335,7 +358,7 @@ CREATE INDEX idx_library_loans_item ON library_loans(library_item_id);
 CREATE INDEX idx_library_loans_borrower ON library_loans(borrower_id);
 CREATE INDEX idx_library_loans_status ON library_loans(status);
 CREATE INDEX idx_library_loans_dates ON library_loans(loan_date, due_date, return_date);
-CREATE INDEX idx_library_loans_overdue ON library_loans(status, due_date) WHERE status = 'active';
+CREATE INDEX idx_library_loans_overdue ON library_loans(status, due_date);
 
 -- ==========================================================================================
 -- ÍNDICES DE NOTIFICAÇÕES
@@ -347,7 +370,7 @@ CREATE INDEX idx_notifications_type ON notifications(notification_type);
 CREATE INDEX idx_notifications_status ON notifications(status);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at);
 CREATE INDEX idx_notifications_user_status ON notifications(user_id, status);
-CREATE INDEX idx_notifications_unread ON notifications(user_id, status) WHERE status = 'unread';
+CREATE INDEX idx_notifications_unread ON notifications(user_id, status);
 
 -- ==========================================================================================
 -- ÍNDICES COMPOSTOS E ESPECIAIS
@@ -362,7 +385,7 @@ CREATE INDEX idx_class_schedules_course_teacher ON class_schedules(course_id, te
 CREATE INDEX idx_teacher_availability_approved_hours ON teacher_availability(teacher_id, aproved, total_hours);
 
 -- Matrículas ativas por curso
-CREATE INDEX idx_student_enrollments_course_active ON student_enrollments(course_id, status) WHERE status = 'active';
+CREATE INDEX idx_student_enrollments_course_active ON student_enrollments(course_id, status);
 
 -- Pagamentos por período
 CREATE INDEX idx_payments_date_status ON payments(payment_date, status);
@@ -371,7 +394,7 @@ CREATE INDEX idx_payments_date_status ON payments(payment_date, status);
 CREATE INDEX idx_sla_evaluation_company_period ON companies_sla_evaluation(company_id, evaluation_period, penalty_applied);
 
 -- Empréstimos em atraso
-CREATE INDEX idx_library_loans_overdue_active ON library_loans(borrower_id, status, due_date) WHERE status = 'active' AND due_date < CURRENT_DATE;
+CREATE INDEX idx_library_loans_overdue_active ON library_loans(borrower_id, status, due_date);
 
 -- Notificações não lidas por usuário
-CREATE INDEX idx_notifications_user_unread ON notifications(user_id, created_at) WHERE status = 'unread'; 
+CREATE INDEX idx_notifications_user_unread ON notifications(user_id, created_at); 

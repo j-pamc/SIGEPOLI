@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS student_enrollments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL, -- ID do aluno
     course_id INT NOT NULL, -- ID do curso
-    enrollment_date DATE NOT NULL DEFAULT CURRENT_DATE, -- Data de matrícula
+    enrollment_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de matrícula
     status ENUM(
         'active', -- Ativo
         'suspended', -- Suspenso
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS student_enrollments (
         'transferred', -- Transferido
         'other' -- Outro status
     ) NOT NULL DEFAULT 'active', -- Status da matrícula
-    conclusion_date DATE NOT NULL DEFAULT CURRENT_DATE, -- Data de conclusão
+    conclusion_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de conclusão
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS class_enrollments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL, -- ID do aluno
     class_id INT NOT NULL, -- ID da turma
-    enrollment_date DATE NOT NULL DEFAULT CURRENT_DATE, -- Data de matrícula na turma
+    enrollment_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de matrícula na turma
     status ENUM(
         'active',
         'dropped',
@@ -501,7 +501,7 @@ CREATE TABLE IF NOT EXISTS department_budgets (
 CREATE TABLE IF NOT EXISTS staff (
     user_id INT NOT NULL, -- Referencia users.id
     staff_number VARCHAR(50) NOT NULL, -- Número de identificação do funcionário
-    hire_date DATE NOT NULL DEFAULT CURRENT_DATE, -- Data de contratação
+    hire_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de contratação
     employment_type ENUM(
         'full_time',
         'part_time',
@@ -580,7 +580,7 @@ CREATE TABLE IF NOT EXISTS staff_positions (
     user_id INT NOT NULL, -- Referencia users.id
     position_id INT NOT NULL, -- ID do cargo 
     description TEXT, -- Descrição das responsabilidades no cargo
-    start_date DATE NOT NULL DEFAULT CURRENT_DATE, -- Data de início no cargo
+    start_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de início no cargo
     end_date DATE, -- Data de término no cargo (se aplicável)
     status ENUM(
         'active',

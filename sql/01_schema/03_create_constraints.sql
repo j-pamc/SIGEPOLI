@@ -2,6 +2,20 @@
 -- SISTEMA DE GESTÃO ESCOLAR POLITÉCNICA (SIGEPOLI)
 -- Constraints e Integridade Referencial
 -- ==============================================================
+-- 
+-- OBJETIVO: Este arquivo define todas as constraints do banco de dados para garantir:
+-- 1. INTEGRIDADE REFERENCIAL: Foreign Keys que mantêm relacionamentos consistentes
+-- 2. INTEGRIDADE DE DOMÍNIO: Check constraints que validam dados (ex: notas 0-20)
+-- 3. INTEGRIDADE DE ENTIDADE: Unique constraints que evitam duplicações
+-- 4. REGRAS DE NEGÓCIO: Implementação das RN01-RN06 do projeto
+-- 
+-- ESTRUTURA:
+-- - FOREIGN KEYS: Relacionamentos entre tabelas com regras de DELETE apropriadas
+-- - CHECK CONSTRAINTS: Validações de dados (RN03: notas 0-20, percentuais 0-100, etc.)
+-- - UNIQUE CONSTRAINTS: Campos únicos e chaves compostas
+-- 
+-- IMPORTANTE: Este arquivo deve ser executado APÓS a criação das tabelas (02_create_tables.sql)
+-- ==============================================================
 
 -- ==========================================================================================
 -- CONSTRAINTS ACADÉMICAS
@@ -251,7 +265,7 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 ALTER TABLE course_access 
 ADD CONSTRAINT fk_course_access_availability 
-FOREIGN KEY (course_availability_id) REFERENCES course_availability(course_id, academic_year) ON DELETE CASCADE;
+FOREIGN KEY (course_availability_id) REFERENCES course_availability(course_id) ON DELETE CASCADE;
 
 -- SERVIÇOS
 ALTER TABLE services 
@@ -493,91 +507,7 @@ ALTER TABLE subjects ADD CONSTRAINT unique_subject_code UNIQUE (code);
 ALTER TABLE classes ADD CONSTRAINT unique_class_code UNIQUE (code);
 -- Salas
 ALTER TABLE rooms ADD CONSTRAINT unique_room_name UNIQUE (name);
-ALTER TABLE rooms ADD CONSTRAINT unique_room_localization UNIQUE (localization);
--- Recursos
-ALTER TABLE resources ADD CONSTRAINT unique_resource_name UNIQUE (name);
--- Alunos
-ALTER TABLE students ADD CONSTRAINT unique_student_number UNIQUE (student_number);
--- Tipos de avaliação
-ALTER TABLE assessment_types ADD CONSTRAINT unique_assessment_type_code UNIQUE (code);
--- Usuários
-ALTER TABLE users ADD CONSTRAINT unique_user_email UNIQUE (email);
--- Papéis
-ALTER TABLE user_roles ADD CONSTRAINT unique_user_role_code UNIQUE (code);
--- Documentos
-ALTER TABLE user_identification ADD CONSTRAINT unique_document_number UNIQUE (document_number);
--- Departamentos
-ALTER TABLE departments ADD CONSTRAINT unique_department_name UNIQUE (name);
-ALTER TABLE departments ADD CONSTRAINT unique_department_acronym UNIQUE (acronym);
--- Funcionários
-ALTER TABLE staff ADD CONSTRAINT unique_staff_number UNIQUE (staff_number);
--- Cargos
-ALTER TABLE positions ADD CONSTRAINT unique_position_name UNIQUE (name);
--- Serviços
-ALTER TABLE services ADD CONSTRAINT unique_service_name UNIQUE (name);
--- Categorias de serviço
-ALTER TABLE service_types ADD CONSTRAINT unique_service_type_name UNIQUE (name);
--- Tipos de pagamento
-ALTER TABLE payment_types ADD CONSTRAINT unique_payment_type_name UNIQUE (name);
--- Empresas
-ALTER TABLE companies ADD CONSTRAINT unique_company_nif UNIQUE (nif);
--- Itens da biblioteca
-ALTER TABLE library_items ADD CONSTRAINT unique_library_item_barcode UNIQUE (barcode);
--- Pagamentos
-ALTER TABLE payments ADD CONSTRAINT unique_payment_reference_number UNIQUE (reference_number);
-
--- ==========================================================================================
--- CHECK CONSTRAINTS
--- ==========================================================================================
-
--- VALIDAÇÃO DE PERFORMANCE
-ALTER TABLE performance ADD CONSTRAINT check_performance_overall_score CHECK (overall_score >= 0 AND overall_score <= 5);
-ALTER TABLE performance ADD CONSTRAINT check_performance_score CHECK (score >= 0 AND score <= 5);
-
--- VALIDAÇÃO DE AVALIAÇÕES DE SLA
-ALTER TABLE companies_sla_evaluation ADD CONSTRAINT check_sla_evaluation_percentage CHECK (achieved_percentage >= 0 AND achieved_percentage <= 100);
-
--- VALIDAÇÃO DE SLA
-ALTER TABLE companies_sla ADD CONSTRAINT check_sla_target_percentage CHECK (target_percentage >= 0 AND target_percentage <= 100);
-ALTER TABLE companies_sla ADD CONSTRAINT check_sla_penalty_percentage CHECK (penalty_percentage >= 0 AND penalty_percentage <= 100);
-
--- VALIDAÇÃO DE DATAS
-ALTER TABLE student_enrollments ADD CONSTRAINT check_enrollment_dates CHECK (enrollment_date <= conclusion_date);
-ALTER TABLE staff_leaves ADD CONSTRAINT check_leave_dates CHECK (start_date <= end_date);
-
--- VALIDAÇÃO DE VALORES MONETÁRIOS
-ALTER TABLE payments ADD CONSTRAINT check_payment_amount CHECK (amount > 0);
-ALTER TABLE fines ADD CONSTRAINT check_fine_amount CHECK (amount > 0);
-
--- VALIDAÇÃO DE CAPACIDADE DE SALAS
-ALTER TABLE rooms ADD CONSTRAINT check_room_capacity CHECK (capacity > 0);
-
--- VALIDAÇÃO DE CARGA HORÁRIA
-ALTER TABLE subjects ADD CONSTRAINT check_subject_workload CHECK (workload_hours > 0);
-
--- VALIDAÇÃO DE DURAÇÃO DE CURSOS
-ALTER TABLE courses ADD CONSTRAINT check_course_duration CHECK (duration_semesters > 0);
-
--- ==========================================================================================
--- UNIQUE CONSTRAINTS
--- ==========================================================================================
-
--- CHAVES ÚNICAS COMPOSTAS
-ALTER TABLE course_availability ADD CONSTRAINT unique_course_academic_year UNIQUE (course_id, academic_year);
-ALTER TABLE class_schedules ADD CONSTRAINT unique_class_subject_teacher UNIQUE (class_id, subject_id, teacher_id);
-ALTER TABLE room_resources ADD CONSTRAINT unique_room_resource UNIQUE (room_id, resource_id);
-ALTER TABLE user_role_assignments ADD CONSTRAINT unique_user_role UNIQUE (user_id, role_id);
-ALTER TABLE companies_departments ADD CONSTRAINT unique_company_department UNIQUE (company_id, department_id);
-
--- Cursos
-ALTER TABLE courses ADD CONSTRAINT unique_course_name UNIQUE (name);
--- Disciplinas
-ALTER TABLE subjects ADD CONSTRAINT unique_subject_code UNIQUE (code);
--- Turmas
-ALTER TABLE classes ADD CONSTRAINT unique_class_code UNIQUE (code);
--- Salas
-ALTER TABLE rooms ADD CONSTRAINT unique_room_name UNIQUE (name);
-ALTER TABLE rooms ADD CONSTRAINT unique_room_localization UNIQUE (localization);
+ALTER TABLE rooms ADD CONSTRAINT unique_room_localization UNIQUE (localization(255));
 -- Recursos
 ALTER TABLE resources ADD CONSTRAINT unique_resource_name UNIQUE (name);
 -- Alunos

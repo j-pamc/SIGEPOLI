@@ -100,9 +100,7 @@ sigepoli/
 - [x] `courses` - Cadastro de cursos oferecidos (RF05)
 - [x] `subjects` - Catálogo de disciplinas (RF05)
 - [x] `course_subjects` - Relação curso-disciplina com pré-requisitos (RF05)
-- [ ] **`curriculum_changes`** - Histórico de mudanças curriculares
 - [x] `course_availability` - Vagas disponíveis por ano letivo (RF06 - controle de vagas)
-
 
 #### **Gestão de Turmas e Horários**
 - [x] `classes` - Turmas por disciplina (RF05)
@@ -110,18 +108,19 @@ sigepoli/
 - [x] `class_schedules` - Horários das turmas (RF05)
 - [x] `rooms` - Salas de aula (RF10 - relatórios de utilização)
 - [x] `resources` - Recursos disponíveis
-- [x] `classroom_resources` - Recursos por sala
-- [ ] **`room_bookings`** -  Tabela para gerenciar reservas especiais de salas para eventos ou outras atividades não acadêmicas regulares
+- [x] `room_resources` - Recursos por sala
+- [x] `room_bookings` - Reservas especiais de salas para atividades não regulares
 
 #### **Gestão de Alunos**
-- [x] `students` - Dados académicos dos alunos (RF06)
+- [x] `students` - Dados dos alunos
+- [x] `student_enrollments` - Matrícula em cursos (RF06)
 - [x] `class_enrollments` - Matrículas em turmas (RF06)
   - **VALIDAÇÃO**: Controle de vaga (RN02) via `course_availability`
 
 #### **Gestão de Professores**
 - [x] `teachers` - Dados dos docentes (RF03)
-- [ ] **`teacher_qualifications`** - Titulação dos professores (RF03 - cadastrar titulação)
-- [ ] **`teacher_availability`** - Carga horária (RN06 - coordenador aprova)
+- [x] `teacher_specializations` - Especializações dos professores
+- [x] `teacher_availability` - Carga horária (RN06 - coordenador aprova)
 
 #### **Sistema de Avaliação**
 - [x] `grades` - Notas dos alunos (RF07)
@@ -137,55 +136,57 @@ sigepoli/
 #### **Gestão de Pessoal**
 - [x] `users` - Dados centrais de todos os utilizadores
 - [x] `user_roles` - Papéis no sistema
+- [x] `user_role_assignments` - Relacionamento usuário-papel
 - [x] `user_identification` - Documentos de identificação
 - [x] `user_health` - Informações de saúde
 - [x] `departments` - Estrutura departamental (RF01)
-- [ ] **`department_budgets`** - Orçamento anual por departamento (RF01)
-- [ ] **`administrative_staff `** - Funcionários administrativos (RF02)
-- [ ] **`staff_positions `** - Cargos disponíveis (Secretário, Tesoureiro, Bibliotecário, etc.)
-- [ ] **`staff_contracts `** - Contratos e vínculos empregatícios
-- [ ] **`staff_leaves`** - Férias e licenças
-- [ ] **`staff_performance `** - Avaliações de desempenho administrativo
+- [x] `department_budgets` - Orçamento anual por departamento (RF01)
+- [x] `staff` - Funcionários administrativos (RF02)
+- [x] `academic_qualifications` - Qualificações dos funcionários (RF03 - cadastrar titulação)
+- [x] `positions` - Cargos disponíveis (Secretário, Tesoureiro, Bibliotecário, etc.)
+- [x] `staff_positions` - Cargos dos funcionários
+- [x] `staff_leaves` - Férias e licenças
+- [x] `evaluation` - Avaliações de desempenho (staff, professores, cursos, serviços)
+- [x] `staff_evaluation` - Avaliações específicas de funcionários
+- [x] `course_evaluation` - Avaliações de cursos pelos alunos
+- [x] `performance` - Resultados das avaliações de desempenho
 
 #### **Coordenação de Cursos**
 - [x] `courses.coordinator_user_id` - Coordenadores atribuídos (RF04)
   - **VALIDAÇÃO**: Apenas coordenadores aprovam carga horária (RN06)
-' [ ] **`curriculum_changes`** - Histórico de mudanças curriculares
-- [ ] **`course_evaluations`** - Avaliações de curso pelos alunos
-- [ ] **`teacher_evaluations`** - Avaliações de curso pelos alunos
 
-#### **Secretaria Academica (crítica para ISPTEC)**
-- [ ] **`studant_ingress`** - matricula 
-- [ ] **`studant_`** - matricula 
-- [ ] **`services`** - servicos q podem ser requesitqdos ex pedido de documento
-- [ ] **`scholarships`** - Bolsas de estudo
-- [ ] **`scholarships_studands`** - estudantes com bolsas de estudo
-- [ ] **`academic_calendar`** - Calendário acadêmico por ano letivo
+#### **Secretaria Académica (crítica para ISPTEC)**
+- [x] `course_access` - Inscrições de alunos nos cursos (RF06)
+- [x] `services` - Serviços que podem ser requisitados (ex: pedido de documento)
+- [x] `service_types` - Categorias de serviços
+- [x] `service_evaluation` - Avaliações de serviços
 
 #### **Tesouraria (crítica para ISPTEC)**
-- [ ] **`payment_methods`** - Métodos de pagamento aceites
-- [ ] **`payments`** - geral - pagamentos com roles para tipo (servicos, estudante, referentes a sac, etc)
-- [ ] **`payment_type`** - tipo (curso, servico, declaracao, matricula, rematricula) resumindo, se e um servico q o estudante ira pagar, se e uma area alugada na instituicao a espera de pagamento, se a instituicao ira pagar, despeja do departamento
-- [ ] **`payment_status`** atraso (atraso, no praso), parcelas (total, mensal, trimestral, semestral, anual - se aplicavel como por exemplo em matricula)departamento, curso, n cadeiras q ira definir valor final de pagamento
-- [ ] **`payment_rules`** id do type, percentagens q afetam preco final - atraso (atraso, no praso), parcelas (total, mensal, trimestral, semestral, anual - se aplicavel como por exemplo em matricula)estudante, declaracao, etc, departamento/curso, numero de cadeiras q ira definir valor final de pagamento
+- [x] `payments` - Pagamentos gerais com roles para tipo
+- [x] `payment_types` - Tipos de pagamento aceites
+- [x] `studant_payments` - Pagamentos de alunos por serviços
+- [x] `company_payments` - Pagamentos a empresas terceirizadas
+- [x] `staff_payments` - Pagamentos a funcionários
+- [x] `fines` - Multas aplicadas a alunos e empresas
 
 #### **Biblioteca**
-- [ ] **`library_items`** - Catálogo geral (livros, revistas, computador, etc.)
-- [ ] **`library_loans`** - Empréstimos e devoluções
+- [x] `library_items` - Catálogo geral (livros, revistas, computador, etc.)
+- [x] `library_loans` - Empréstimos e devoluções
 
 ---
 
 ### 3. ÁREA OPERACIONAL ⚙️
 
 #### **Gestão de Terceirizados**
-- [ ] **`service_companies`** - Empresas terceirizadas (RF08)
-- [ ] **`service_contracts`** - Contratos com empresas (RF08)
-- [ ] **`contract_guarantees`** - Garantias por contrato (RN04)
-- [ ] **`sla_definitions`** - Definições de SLA por contrato (RF08)
+- [x] `companies` - Empresas terceirizadas (RF08)
+- [x] `companies_departments` - Relação empresas-departamentos
+- [x] `companies_contracts` - Contratos com empresas (RF08)
+- [x] `companies_sla` - Acordos de nível de serviço (RF08)
+- [x] `companies_sla_evaluation` - Avaliações dos SLA
+- [x] `companies_warranties` - Garantias oferecidas pelas empresas
+- [x] `companies_sla_definitions` - Definições dos termos dos SLA
 
 #### **Monitoramento e Pagamentos**
-- [ ] **`sla_metrics`** - Métricas e metas de SLA
-- [ ] **`sla_evaluations`** - Avaliações mensais de desempenho
   - **VALIDAÇÃO**: Verifica garantia válida antes do pagamento (RN04)
   - **VALIDAÇÃO**: Multa automática se SLA < 90% (RN05)
 
@@ -194,12 +195,7 @@ sigepoli/
 ### 4. ÁREAS TRANSVERSAIS 🔄
 
 #### **Auditoria**
-- [ ] **`audit_logs`** - Logs de auditoria (RF11)
-- [ ] **`audit_categories`** - Categorias de auditoria
-- [ ] **`user_sessions`** - Sessões de usuário
-- [ ] **`data_retention_policies`** - Políticas de retenção de dados
-- [ ] **`system_configurations`** - Configurações do sistema
-- [ ] **`notification_queue`** - Fila de notificações
+- [x] `audit_logs` - Logs de auditoria (RF11)
 
 #### **Relatórios** (Consultas, não tabelas)
 - **RF10**: Relatórios de carga horária, salas e custos
@@ -213,25 +209,25 @@ sigepoli/
 ### 5. VALIDAÇÕES E REGRAS DE NEGÓCIO
 
 #### **Procedures (RF - Matricular, Alocar, Processar)**
-- [ ] **`sp_matricular_aluno`** - Matrícula com validação de vaga e propina (RN02)
-- [ ] **`sp_alocar_professor`** - Alocação sem sobreposição de horários (RN01)
-- [ ] **`sp_processar_pagamento`** - Pagamento com cálculo de multa (RN05)
+- [ ] `sp_matricular_aluno` - Matrícula com validação de vaga e propina (RN02)
+- [ ] `sp_alocar_professor` - Alocação sem sobreposição de horários (RN01)
+- [ ] `sp_processar_pagamento` - Pagamento com cálculo de multa (RN05)
 
 #### **Functions (Cálculos)**
-- [ ] **`fn_calcular_media_ponderada`** - Média ponderada do aluno
-- [ ] **`fn_calcular_percentual_sla`** - Percentual de SLA mensal
+- [ ] `fn_calcular_media_ponderada` - Média ponderada do aluno
+- [ ] `fn_calcular_percentual_sla` - Percentual de SLA mensal
 
 #### **Triggers (Validações Automáticas)**
-- [ ] **`tr_validar_sobreposicao_horario`** - Previne sobreposição de horários (RN01)
-- [ ] **`tr_validar_nota_range`** - Valida notas entre 0-20 (RN03)
-- [ ] **`tr_bloquear_pagamento_sem_garantia`** - Bloqueia pagamento sem garantia (RN04)
-- [ ] **`tr_auditoria_matriculas`** - Auditoria de matrículas (RF11)
-- [ ] **`tr_auditoria_pagamentos`** - Auditoria de pagamentos (RF11)
+- [ ] `tr_validar_sobreposicao_horario` - Previne sobreposição de horários (RN01)
+- [ ] `tr_validar_nota_range` - Valida notas entre 0-20 (RN03)
+- [ ] `tr_bloquear_pagamento_sem_garantia` - Bloqueia pagamento sem garantia (RN04)
+- [ ] `tr_auditoria_matriculas` - Auditoria de matrículas (RF11)
+- [ ] `tr_auditoria_pagamentos` - Auditoria de pagamentos (RF11)
 
 #### **Views (Relatórios)**
-- [ ] **`vw_grade_horaria_curso`** - Grade horária por curso
-- [ ] **`vw_carga_horaria_professor`** - Carga horária por professor
-- [ ] **`vw_custos_servicos_mes`** - Resumo de custos mensais
+- [ ] `vw_grade_horaria_curso` - Grade horária por curso
+- [ ] `vw_carga_horaria_professor` - Carga horária por professor
+- [ ] `vw_custos_servicos_mes` - Resumo de custos mensais
 
 ---
 

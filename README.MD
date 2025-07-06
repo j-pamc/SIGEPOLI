@@ -100,8 +100,9 @@ sigepoli/
 - [x] `courses` - Cadastro de cursos oferecidos (RF05)
 - [x] `subjects` - Catálogo de disciplinas (RF05)
 - [x] `course_subjects` - Relação curso-disciplina com pré-requisitos (RF05)
+- [ ] **`curriculum_changes`** - Histórico de mudanças curriculares
 - [x] `course_availability` - Vagas disponíveis por ano letivo (RF06 - controle de vagas)
-- [ ] **`course_fees`** - Propinas por curso/semestre (RF02, RN02 - controle de matrícula)
+
 
 #### **Gestão de Turmas e Horários**
 - [x] `classes` - Turmas por disciplina (RF05)
@@ -110,12 +111,12 @@ sigepoli/
 - [x] `rooms` - Salas de aula (RF10 - relatórios de utilização)
 - [x] `resources` - Recursos disponíveis
 - [x] `classroom_resources` - Recursos por sala
+- [ ] **`room_bookings`** -  Tabela para gerenciar reservas especiais de salas para eventos ou outras atividades não acadêmicas regulares
 
 #### **Gestão de Alunos**
 - [x] `students` - Dados académicos dos alunos (RF06)
 - [x] `class_enrollments` - Matrículas em turmas (RF06)
   - **VALIDAÇÃO**: Controle de vaga (RN02) via `course_availability`
-- [ ] **`student_payments`** - Pagamentos de propinas (RN02 - só matricula se propina paga)
 
 #### **Gestão de Professores**
 - [x] `teachers` - Dados dos docentes (RF03)
@@ -140,17 +141,33 @@ sigepoli/
 - [x] `user_health` - Informações de saúde
 - [x] `departments` - Estrutura departamental (RF01)
 - [ ] **`department_budgets`** - Orçamento anual por departamento (RF01)
-- [ ] **`administrative_staff`** - Funcionários administrativos (RF02)
+- [ ] **`administrative_staff `** - Funcionários administrativos (RF02)
+- [ ] **`staff_positions `** - Cargos disponíveis (Secretário, Tesoureiro, Bibliotecário, etc.)
+- [ ] **`staff_contracts `** - Contratos e vínculos empregatícios
+- [ ] **`staff_leaves`** - Férias e licenças
+- [ ] **`staff_performance `** - Avaliações de desempenho administrativo
 
 #### **Coordenação de Cursos**
 - [x] `courses.coordinator_user_id` - Coordenadores atribuídos (RF04)
   - **VALIDAÇÃO**: Apenas coordenadores aprovam carga horária (RN06)
+' [ ] **`curriculum_changes`** - Histórico de mudanças curriculares
+- [ ] **`course_evaluations`** - Avaliações de curso pelos alunos
+- [ ] **`teacher_evaluations`** - Avaliações de curso pelos alunos
+
+#### **Secretaria Academica (crítica para ISPTEC)**
+- [ ] **`studant_ingress`** - matricula 
+- [ ] **`studant_`** - matricula 
+- [ ] **`services`** - servicos q podem ser requesitqdos ex pedido de documento
+- [ ] **`scholarships`** - Bolsas de estudo
+- [ ] **`scholarships_studands`** - estudantes com bolsas de estudo
+- [ ] **`academic_calendar`** - Calendário acadêmico por ano letivo
 
 #### **Tesouraria (crítica para ISPTEC)**
-- [ ] **`payment_methods`** - Métodos de pagamento aceitos
-- [ ] **`payment_plans`** - Planos de pagamento para estudantes
-- [ ] **`financial_transactions`** - Todas as transações financeiras
-- [ ] **`scholarships`** - Bolsas de estudo
+- [ ] **`payment_methods`** - Métodos de pagamento aceites
+- [ ] **`payments`** - geral - pagamentos com roles para tipo (servicos, estudante, referentes a sac, etc)
+- [ ] **`payment_type`** - tipo (curso, servico, declaracao, matricula, rematricula) resumindo, se e um servico q o estudante ira pagar, se e uma area alugada na instituicao a espera de pagamento, se a instituicao ira pagar, despeja do departamento
+- [ ] **`payment_status`** atraso (atraso, no praso), parcelas (total, mensal, trimestral, semestral, anual - se aplicavel como por exemplo em matricula)departamento, curso, n cadeiras q ira definir valor final de pagamento
+- [ ] **`payment_rules`** id do type, percentagens q afetam preco final - atraso (atraso, no praso), parcelas (total, mensal, trimestral, semestral, anual - se aplicavel como por exemplo em matricula)estudante, declaracao, etc, departamento/curso, numero de cadeiras q ira definir valor final de pagamento
 
 #### **Biblioteca**
 - [ ] **`library_items`** - Catálogo geral (livros, revistas, computador, etc.)
@@ -167,8 +184,8 @@ sigepoli/
 - [ ] **`sla_definitions`** - Definições de SLA por contrato (RF08)
 
 #### **Monitoramento e Pagamentos**
-- [ ] **`sla_monitoring`** - Monitoramento mensal de SLA (RF09)
-- [ ] **`service_payments`** - Pagamentos mensais às empresas (RF09)
+- [ ] **`sla_metrics`** - Métricas e metas de SLA
+- [ ] **`sla_evaluations`** - Avaliações mensais de desempenho
   - **VALIDAÇÃO**: Verifica garantia válida antes do pagamento (RN04)
   - **VALIDAÇÃO**: Multa automática se SLA < 90% (RN05)
 
@@ -178,6 +195,11 @@ sigepoli/
 
 #### **Auditoria**
 - [ ] **`audit_logs`** - Logs de auditoria (RF11)
+- [ ] **`audit_categories`** - Categorias de auditoria
+- [ ] **`user_sessions`** - Sessões de usuário
+- [ ] **`data_retention_policies`** - Políticas de retenção de dados
+- [ ] **`system_configurations`** - Configurações do sistema
+- [ ] **`notification_queue`** - Fila de notificações
 
 #### **Relatórios** (Consultas, não tabelas)
 - **RF10**: Relatórios de carga horária, salas e custos

@@ -1,367 +1,196 @@
 # 📊 MODELO CONCEITUAL (ER) - SIGEPOLI
 
-## Sistema Integrado de Gestão Académica, Pessoal e Operacional para Instituto Superior Politécnico
+## Sistema Integrado de Gestão Acadêmica, Administrativa e Operacional
 
 ---
 
 ## 1. 📝 DESCRIÇÃO DO MODELO CONCEITUAL
 
 ### 1.1 **VISÃO GERAL**
-O modelo conceitual do SIGEPOLI representa a integração de três áreas principais:
-- **Área Académica**: Gestão de cursos, disciplinas, turmas, alunos e avaliações
-- **Área Administrativa**: Gestão de pessoal, departamentos e recursos humanos
-- **Área Operacional**: Gestão de empresas terceirizadas, contratos e SLA
+O modelo conceitual do SIGEPOLI representa a integração de quatro áreas principais:
+- **Acadêmica**: Gestão de cursos, disciplinas, turmas, alunos, professores e avaliações
+- **Administrativa**: Gestão de pessoas, departamentos, cargos, orçamentos e processos internos
+- **Operacional**: Gestão de empresas terceirizadas, contratos, SLAs, serviços e pagamentos
+- **Transversal**: Biblioteca, notificações e auditoria
 
 ### 1.2 **ENTIDADES PRINCIPAIS**
 
-#### **ENTIDADES CENTRAIS**
-1. **USUÁRIO** - Entidade central que implementa Single Table Inheritance
-   - Atributos: id, nome, email, senha, telefone, endereço, data_nascimento, status, gênero
-   - Tipos: Aluno, Professor, Funcionário, Coordenador
+#### **CENTRAIS E ADMINISTRATIVAS**
+- **users** (usuários do sistema)
+- **user_roles** (tipos de papel)
+- **user_role_assignments** (atribuição de papéis)
+- **user_identification** (documentos)
+- **user_health** (saúde)
+- **departments** (departamentos)
+- **department_budgets** (orçamentos)
+- **staff** (funcionários)
+- **academic_qualifications** (qualificações)
+- **positions** (cargos)
+- **staff_positions** (funções ocupadas)
+- **staff_leaves** (licenças/férias)
+- **evaluation** (avaliações)
+- **staff_evaluation** (avaliação de funcionários)
+- **course_evaluation** (avaliação de cursos)
+- **performance** (resultados de avaliação)
+- **course_access** (inscrição de alunos)
 
-2. **DEPARTAMENTO** - Estrutura organizacional da instituição
-   - Atributos: id, nome, sigla, descrição, status, classificação
-   - Responsável por: cursos, funcionários, orçamentos
+#### **ACADÊMICAS**
+- **courses** (cursos)
+- **subjects** (disciplinas)
+- **course_subjects** (curso-disciplina)
+- **course_availability** (oferta de vagas)
+- **classes** (turmas)
+- **time_slots** (horários)
+- **class_schedules** (grade horária)
+- **rooms** (salas)
+- **resources** (recursos)
+- **room_resources** (recursos por sala)
+- **room_bookings** (reserva de sala)
+- **students** (alunos)
+- **student_enrollments** (matrícula em curso)
+- **class_enrollments** (matrícula em disciplina/turma)
+- **teachers** (professores)
+- **teacher_specializations** (especializações)
+- **teacher_availability** (disponibilidade)
+- **grades** (notas)
+- **assessment_types** (tipos de avaliação)
+- **attendance** (presenças)
+- **classes_attended** (aulas ministradas)
 
-3. **CURSO** - Programas académicos oferecidos
-   - Atributos: id, nome, descrição, duração_semestres, nível, status
-   - Relacionamentos: departamento, coordenador, disciplinas
+#### **OPERACIONAIS E FINANCEIRAS**
+- **services** (serviços)
+- **service_types** (categorias de serviço)
+- **service_evaluation** (avaliação de serviço)
+- **payments** (pagamentos)
+- **payment_types** (tipos de pagamento)
+- **studant_payments** (pagamento de aluno)
+- **company_payments** (pagamento a empresa)
+- **staff_payments** (pagamento a funcionário)
+- **fines** (multas)
+- **companies** (empresas)
+- **companies_departments** (empresa-departamento)
+- **companies_contracts** (contratos)
+- **companies_sla** (SLA)
+- **companies_sla_evaluation** (avaliação de SLA)
 
-#### **ENTIDADES ACADÉMICAS**
-4. **DISCIPLINA** - Matérias do currículo
-   - Atributos: id, nome, código, descrição, carga_horária
-
-5. **TURMA** - Grupos de alunos por período
-   - Atributos: id, nome, código, ano_académico, semestre
-
-6. **SALA** - Espaços físicos para aulas
-   - Atributos: id, nome, localização, capacidade, tipo, acessibilidade
-
-7. **HORÁRIO** - Períodos de tempo para aulas
-   - Atributos: id, dia_semana, turno, hora_início, hora_fim
-
-#### **ENTIDADES ADMINISTRATIVAS**
-8. **FUNCIONÁRIO** - Pessoal administrativo
-   - Atributos: número_funcionário, data_contratação, tipo_emprego, categoria
-
-9. **CARGO** - Posições hierárquicas
-   - Atributos: id, nome, descrição, salário
-
-10. **ORÇAMENTO** - Recursos financeiros por departamento
-    - Atributos: id, ano_fiscal, valor_orçamento, valor_gasto
-
-#### **ENTIDADES OPERACIONAIS**
-11. **EMPRESA** - Prestadoras de serviços terceirizados
-    - Atributos: id, nome, NIF, endereço, telefone, email
-
-12. **CONTRATO** - Acordos com empresas
-    - Atributos: id, valor, data_início, data_fim, status
-
-13. **SLA** - Acordos de nível de serviço
-    - Atributos: id, tipo, meta_percentual, penalidade_percentual
-
-#### **ENTIDADES DE SUPORTE**
-14. **SERVIÇO** - Serviços oferecidos (propinas, documentos)
-    - Atributos: id, nome, descrição, valor, status
-
-15. **PAGAMENTO** - Transações financeiras
-    - Atributos: id, valor, data, método, status, número_referência
-
-16. **ITEM_BIBLIOTECA** - Recursos da biblioteca
-    - Atributos: id, título, autor, editora, tipo, formato, ISBN
-
-17. **NOTIFICAÇÃO** - Comunicações do sistema
-    - Atributos: id, título, mensagem, tipo, status
+#### **SUPORTE E TRANSVERSAIS**
+- **library_items** (itens da biblioteca)
+- **library_loans** (empréstimos)
+- **notifications** (notificações)
+- **audit_logs** (auditoria)
 
 ### 1.3 **RELACIONAMENTOS PRINCIPAIS**
-
-#### **RELACIONAMENTOS ACADÉMICOS**
-- **CURSO** → **DEPARTAMENTO** (N:1) - Cada curso pertence a um departamento
-- **CURSO** → **USUÁRIO** (N:1) - Cada curso tem um coordenador
-- **CURSO** → **DISCIPLINA** (N:M) - Cursos possuem múltiplas disciplinas
-- **TURMA** → **CURSO** (N:1) - Cada turma pertence a um curso
-- **TURMA** → **DISCIPLINA** (N:M) - Turmas possuem múltiplas disciplinas
-- **USUÁRIO** → **TURMA** (N:M) - Alunos matriculam-se em turmas
-- **USUÁRIO** → **DISCIPLINA** (N:M) - Professores lecionam disciplinas
-- **SALA** → **TURMA** (1:N) - Salas são utilizadas por turmas
-- **HORÁRIO** → **TURMA** (N:M) - Turmas possuem múltiplos horários
-
-#### **RELACIONAMENTOS ADMINISTRATIVOS**
-- **DEPARTAMENTO** → **USUÁRIO** (1:N) - Departamentos possuem funcionários
-- **DEPARTAMENTO** → **ORÇAMENTO** (1:N) - Departamentos possuem orçamentos
-- **USUÁRIO** → **CARGO** (N:M) - Funcionários ocupam cargos
-- **USUÁRIO** → **PAPEL** (N:M) - Usuários possuem papéis no sistema
-
-#### **RELACIONAMENTOS OPERACIONAIS**
-- **EMPRESA** → **DEPARTAMENTO** (N:M) - Empresas atendem departamentos
-- **EMPRESA** → **CONTRATO** (1:N) - Empresas possuem contratos
-- **EMPRESA** → **SLA** (1:N) - Empresas possuem acordos de SLA
-- **CONTRATO** → **PAGAMENTO** (1:N) - Contratos geram pagamentos
-
-#### **RELACIONAMENTOS FINANCEIROS**
-- **SERVIÇO** → **PAGAMENTO** (1:N) - Serviços geram pagamentos
-- **USUÁRIO** → **PAGAMENTO** (1:N) - Usuários realizam pagamentos
-- **EMPRESA** → **PAGAMENTO** (1:N) - Empresas recebem pagamentos
-
-### 1.4 **ATRIBUTOS IDENTIFICADORES**
-- **USUÁRIO**: id (PK), email (UK)
-- **CURSO**: id (PK), nome (UK)
-- **DISCIPLINA**: id (PK), código (UK)
-- **TURMA**: id (PK), código (UK)
-- **SALA**: id (PK), nome (UK)
-- **DEPARTAMENTO**: id (PK), nome (UK), sigla (UK)
-- **EMPRESA**: id (PK), NIF (UK)
-- **FUNCIONÁRIO**: user_id (PK), número_funcionário (UK)
-- **ALUNO**: user_id (PK), número_estudante (UK)
-
-### 1.5 **CARDINALIDADES**
-- **CURSO-DISCIPLINA**: N:M (um curso pode ter várias disciplinas, uma disciplina pode estar em vários cursos)
-- **TURMA-ALUNO**: N:M (uma turma pode ter vários alunos, um aluno pode estar em várias turmas)
-- **PROFESSOR-DISCIPLINA**: N:M (um professor pode lecionar várias disciplinas, uma disciplina pode ter vários professores)
-- **SALA-TURMA**: 1:N (uma sala pode ser usada por várias turmas, uma turma usa uma sala por vez)
-- **DEPARTAMENTO-FUNCIONÁRIO**: 1:N (um departamento pode ter vários funcionários, um funcionário pertence a um departamento)
+- **courses** → **departments** (N:1)
+- **courses** → **staff** (coordenador, 1:1)
+- **course_subjects** → **courses**/ **subjects** (N:1)
+- **classes** → **courses** (N:1)
+- **class_schedules** → **classes**, **subjects**, **teachers**, **rooms** (N:1)
+- **students** → **users** (1:1)
+- **student_enrollments** → **students**, **courses** (N:1)
+- **class_enrollments** → **students**, **class_schedules** (N:1)
+- **teachers** → **staff** (1:1)
+- **teacher_specializations** → **teachers**, **subjects**, **academic_qualifications** (N:1)
+- **grades** → **students**, **class_schedules**, **assessment_types** (N:1)
+- **attendance** → **students**, **classes_attended** (N:1)
+- **services** → **departments**, **service_types** (N:1)
+- **payments** → **payment_types** (N:1)
+- **studant_payments** → **payments**, **services**, **students** (N:1)
+- **company_payments** → **payments**, **companies**, **department_budgets**, **staff** (N:1)
+- **staff_payments** → **payments**, **staff** (N:1)
+- **fines** → **payments** (N:1)
+- **companies_departments** → **companies**, **departments** (N:1)
+- **companies_contracts** → **companies**, **staff** (N:1)
+- **companies_sla** → **companies** (N:1)
+- **companies_sla_evaluation** → **companies**, **companies_sla**, **staff** (N:1)
+- **library_loans** → **library_items**, **users** (N:1)
+- **notifications** → **users** (N:1)
+- **audit_logs** → **users** (N:1)
 
 ---
 
-## 2. 🎨 REPRESENTAÇÃO VISUAL (FLUXOGRAMA)
+## 2. 🎨 REPRESENTAÇÃO VISUAL (MERMAID ERD)
 
 ```mermaid
 erDiagram
-    %% ENTIDADES CENTRAIS
-    USUARIO {
-        int id PK
-        varchar first_name
-        varchar last_name
-        varchar email UK
-        varchar password
-        varchar phone
-        text address
-        date date_of_birth
-        enum status
-        enum gender
-        boolean is_verified
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    DEPARTAMENTO {
-        int id PK
-        varchar name UK
-        varchar acronym UK
-        text description
-        enum status
-        enum classification
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    %% ENTIDADES ACADÉMICAS
-    CURSO {
-        int id PK
-        varchar name UK
-        text description
-        int duration_semesters
-        enum level
-        enum status
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    DISCIPLINA {
-        int id PK
-        varchar name
-        varchar code UK
-        text description
-        int workload_hours
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    TURMA {
-        int id PK
-        varchar name
-        varchar code UK
-        int academic_year
-        int semester
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    SALA {
-        int id PK
-        varchar name UK
-        text description
-        text localization UK
-        int capacity
-        enum type_of_room
-        boolean acessibility
-        boolean is_available
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    HORARIO {
-        int id PK
-        enum day_of_week
-        enum shift
-        time start_time
-        time end_time
-        int hours
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    %% ENTIDADES ADMINISTRATIVAS
-    FUNCIONARIO {
-        int user_id PK
-        varchar staff_number UK
-        date hire_date
-        enum employment_type
-        enum employment_status
-        enum staff_category
-        varchar office_location
-        enum status
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    CARGO {
-        int id PK
-        varchar name UK
-        text description
-        decimal amount
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    ORCAMENTO {
-        int id PK
-        int fiscal_year
-        decimal budget_amount
-        decimal spent_amount
-        decimal remaining_amount
-        boolean on_account
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    %% ENTIDADES OPERACIONAIS
-    EMPRESA {
-        int id PK
-        varchar name
-        varchar nif UK
-        varchar address
-        varchar phone
-        varchar email
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    CONTRATO {
-        int id PK
-        decimal contract_value
-        date started_at
-        date ended_at
-        enum status
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    SLA {
-        int id PK
-        varchar sla_name
-        text description
-        enum sla_type
-        decimal target_percentage
-        decimal penalty_percentage
-        boolean is_active
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    %% ENTIDADES DE SUPORTE
-    SERVICO {
-        int id PK
-        varchar name UK
-        text description
-        decimal value
-        enum status
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    PAGAMENTO {
-        int id PK
-        decimal amount
-        timestamp payment_date
-        varchar reference_number UK
-        enum status
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    ITEM_BIBLIOTECA {
-        int id PK
-        varchar title
-        varchar subtitle
-        varchar isbn
-        varchar issn
-        varchar barcode UK
-        enum item_type
-        enum format
-        varchar author
-        varchar publisher
-        varchar subject_area
-        varchar location
-        enum condition_status
-        enum availability_status
-        date acquisition_date
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    NOTIFICACAO {
-        int id PK
-        varchar title
-        text message
-        enum notification_type
-        enum status
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    %% RELACIONAMENTOS ACADÉMICOS
-    DEPARTAMENTO ||--o{ CURSO : "possui"
-    DEPARTAMENTO ||--o{ FUNCIONARIO : "empregua"
-    DEPARTAMENTO ||--o{ ORCAMENTO : "possui"
-    
-    CURSO }o--|| USUARIO : "coordenado_por"
-    CURSO }o--o{ DISCIPLINA : "contem"
-    TURMA }o--|| CURSO : "pertence_a"
-    TURMA }o--o{ DISCIPLINA : "oferece"
-    TURMA }o--o{ SALA : "utiliza"
-    TURMA }o--o{ HORARIO : "possui"
-    
-    USUARIO }o--o{ TURMA : "matricula_em"
-    USUARIO }o--o{ DISCIPLINA : "leciona"
-    
-    %% RELACIONAMENTOS ADMINISTRATIVOS
-    FUNCIONARIO }o--o{ CARGO : "ocupa"
-    USUARIO }o--o{ PAPEL : "possui"
-    
-    %% RELACIONAMENTOS OPERACIONAIS
-    EMPRESA }o--o{ DEPARTAMENTO : "atende"
-    EMPRESA ||--o{ CONTRATO : "possui"
-    EMPRESA ||--o{ SLA : "possui"
-    
-    %% RELACIONAMENTOS FINANCEIROS
-    SERVICO ||--o{ PAGAMENTO : "gera"
-    USUARIO ||--o{ PAGAMENTO : "realiza"
-    EMPRESA ||--o{ PAGAMENTO : "recebe"
-    
-    %% RELACIONAMENTOS DE SUPORTE
-    USUARIO ||--o{ NOTIFICACAO : "recebe"
-    USUARIO }o--o{ ITEM_BIBLIOTECA : "empresta"
+    USERS ||--o{ STUDENTS : ""
+    USERS ||--o{ STAFF : ""
+    USERS ||--o{ USER_IDENTIFICATION : ""
+    USERS ||--o{ USER_HEALTH : ""
+    USERS ||--o{ USER_ROLE_ASSIGNMENTS : ""
+    USER_ROLES ||--o{ USER_ROLE_ASSIGNMENTS : ""
+    DEPARTMENTS ||--o{ COURSES : ""
+    DEPARTMENTS ||--o{ DEPARTMENT_BUDGETS : ""
+    DEPARTMENTS ||--o{ STAFF : ""
+    DEPARTMENTS ||--o{ SERVICES : ""
+    DEPARTMENTS ||--o{ ROOM_BOOKINGS : ""
+    DEPARTMENTS ||--o{ COMPANIES_DEPARTMENTS : ""
+    COURSES ||--o{ COURSE_SUBJECTS : ""
+    COURSES ||--o{ CLASSES : ""
+    COURSES ||--o{ COURSE_AVAILABILITY : ""
+    COURSES ||--o{ STUDENT_ENROLLMENTS : ""
+    COURSES ||--o{ CLASS_SCHEDULES : ""
+    COURSES ||--o{ COURSE_EVALUATION : ""
+    COURSES ||--o{ CLASS_ENROLLMENTS : ""
+    STAFF ||--o{ TEACHERS : ""
+    STAFF ||--o{ STAFF_POSITIONS : ""
+    STAFF ||--o{ STAFF_LEAVES : ""
+    STAFF ||--o{ TEACHER_AVAILABILITY : ""
+    STAFF ||--o{ COMPANY_PAYMENTS : ""
+    STAFF ||--o{ STAFF_PAYMENTS : ""
+    STAFF ||--o{ EVALUATION : ""
+    STAFF ||--o{ COMPANIES_CONTRACTS : ""
+    STAFF ||--o{ COMPANIES_SLA_EVALUATION : ""
+    TEACHERS ||--o{ TEACHER_SPECIALIZATIONS : ""
+    TEACHERS ||--o{ TEACHER_AVAILABILITY : ""
+    TEACHERS ||--o{ CLASS_SCHEDULES : ""
+    SUBJECTS ||--o{ COURSE_SUBJECTS : ""
+    SUBJECTS ||--o{ TEACHER_SPECIALIZATIONS : ""
+    SUBJECTS ||--o{ CLASS_SCHEDULES : ""
+    SUBJECTS ||--o{ GRADES : ""
+    COURSE_SUBJECTS ||--o{ CLASS_SCHEDULES : ""
+    CLASSES ||--o{ CLASS_SCHEDULES : ""
+    CLASSES ||--o{ CLASSES_ATTENDED : ""
+    CLASSES ||--o{ CLASS_ENROLLMENTS : ""
+    TIME_SLOTS ||--o{ CLASS_SCHEDULES : ""
+    TIME_SLOTS ||--o{ CLASSES_ATTENDED : ""
+    ROOMS ||--o{ CLASS_SCHEDULES : ""
+    ROOMS ||--o{ ROOM_RESOURCES : ""
+    ROOMS ||--o{ ROOM_BOOKINGS : ""
+    RESOURCES ||--o{ ROOM_RESOURCES : ""
+    ROOM_RESOURCES ||--o{ ROOM_BOOKINGS : ""
+    STUDENTS ||--o{ STUDENT_ENROLLMENTS : ""
+    STUDENTS ||--o{ CLASS_ENROLLMENTS : ""
+    STUDENTS ||--o{ GRADES : ""
+    STUDENTS ||--o{ ATTENDANCE : ""
+    STUDENT_ENROLLMENTS ||--o{ CLASS_ENROLLMENTS : ""
+    CLASS_SCHEDULES ||--o{ CLASS_ENROLLMENTS : ""
+    CLASS_SCHEDULES ||--o{ GRADES : ""
+    CLASS_SCHEDULES ||--o{ ATTENDANCE : ""
+    CLASS_SCHEDULES ||--o{ CLASSES_ATTENDED : ""
+    GRADES ||--o{ ASSESSMENT_TYPES : ""
+    ATTENDANCE ||--o{ CLASSES_ATTENDED : ""
+    EVALUATION ||--o{ STAFF_EVALUATION : ""
+    EVALUATION ||--o{ COURSE_EVALUATION : ""
+    EVALUATION ||--o{ PERFORMANCE : ""
+    SERVICES ||--o{ SERVICE_EVALUATION : ""
+    SERVICES ||--o{ STUDANT_PAYMENTS : ""
+    SERVICE_TYPES ||--o{ SERVICES : ""
+    PAYMENTS ||--o{ STUDANT_PAYMENTS : ""
+    PAYMENTS ||--o{ COMPANY_PAYMENTS : ""
+    PAYMENTS ||--o{ STAFF_PAYMENTS : ""
+    PAYMENTS ||--o{ FINES : ""
+    PAYMENT_TYPES ||--o{ PAYMENTS : ""
+    COMPANIES ||--o{ COMPANIES_DEPARTMENTS : ""
+    COMPANIES ||--o{ COMPANIES_CONTRACTS : ""
+    COMPANIES ||--o{ COMPANIES_SLA : ""
+    COMPANIES ||--o{ COMPANIES_SLA_EVALUATION : ""
+    COMPANIES_DEPARTMENTS ||--o{ COMPANIES_CONTRACTS : ""
+    COMPANIES_CONTRACTS ||--o{ COMPANIES_SLA : ""
+    COMPANIES_SLA ||--o{ COMPANIES_SLA_EVALUATION : ""
+    LIBRARY_ITEMS ||--o{ LIBRARY_LOANS : ""
+    USERS ||--o{ LIBRARY_LOANS : ""
+    USERS ||--o{ NOTIFICATIONS : ""
+    USERS ||--o{ AUDIT_LOGS : ""
 ```
 
 ---

@@ -105,6 +105,9 @@ SOURCE scripts\deploy_completo.sql
 
 # Ou script monolítico
 SOURCE scripts\deploy_monolitico.sql 
+
+# Ou script monolítico
+SOURCE scripts\reset_database.sql 
 ```
 
 ### Método 2: Executar scripts individuais

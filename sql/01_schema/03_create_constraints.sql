@@ -27,8 +27,11 @@ ADD CONSTRAINT fk_courses_department
 FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE RESTRICT;
 
 ALTER TABLE courses 
-ADD CONSTRAINT fk_courses_coordinator 
-FOREIGN KEY (coordinator_user_id) REFERENCES users(id) ON DELETE RESTRICT;
+ADD CONSTRAINT fk_courses_coordinator_staff 
+FOREIGN KEY (coordinator_staff_id) REFERENCES staff(id) ON DELETE RESTRICT;
+
+ALTER TABLE courses 
+ADD CONSTRAINT uq_courses_coordinator_staff UNIQUE (coordinator_staff_id);
 
 -- DISCIPLINAS E CURSOS
 ALTER TABLE course_subjects 
@@ -60,11 +63,15 @@ FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE RESTRICT;
 
 ALTER TABLE class_schedules 
 ADD CONSTRAINT fk_class_schedules_teacher 
-FOREIGN KEY (teacher_id) REFERENCES teachers(user_id) ON DELETE RESTRICT;
+FOREIGN KEY (teacher_id) REFERENCES teachers(staff_id) ON DELETE RESTRICT;
 
 ALTER TABLE class_schedules 
 ADD CONSTRAINT fk_class_schedules_room 
 FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE SET NULL;
+
+ALTER TABLE class_schedules 
+ADD CONSTRAINT fk_class_schedules_approved_by 
+FOREIGN KEY (approved_by) REFERENCES staff(id) ON DELETE SET NULL;
 
 -- SALAS E RECURSOS
 ALTER TABLE room_resources 
@@ -89,6 +96,9 @@ ALTER TABLE students
 ADD CONSTRAINT fk_students_user 
 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
+ALTER TABLE students 
+ADD CONSTRAINT uq_students_student_number UNIQUE (student_number);
+
 -- MATRÍCULAS
 ALTER TABLE student_enrollments 
 ADD CONSTRAINT fk_student_enrollments_student 
@@ -104,27 +114,35 @@ ADD CONSTRAINT fk_class_enrollments_student
 FOREIGN KEY (student_id) REFERENCES students(user_id) ON DELETE CASCADE;
 
 ALTER TABLE class_enrollments 
-ADD CONSTRAINT fk_class_enrollments_class 
-FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE;
+ADD CONSTRAINT fk_class_enrollments_class_schedules 
+FOREIGN KEY (class_schedules_id) REFERENCES class_schedules(id) ON DELETE CASCADE;
 
 -- PROFESSORES
 ALTER TABLE teachers 
-ADD CONSTRAINT fk_teachers_user 
-FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+ADD CONSTRAINT fk_teachers_staff 
+FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE;
 
 -- ESPECIALIZAÇÕES DE PROFESSORES
 ALTER TABLE teacher_specializations 
 ADD CONSTRAINT fk_teacher_specializations_teacher 
-FOREIGN KEY (teacher_id) REFERENCES teachers(user_id) ON DELETE CASCADE;
+FOREIGN KEY (teacher_id) REFERENCES teachers(staff_id) ON DELETE CASCADE;
 
 ALTER TABLE teacher_specializations 
 ADD CONSTRAINT fk_teacher_specializations_subject 
 FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE;
 
+ALTER TABLE teacher_specializations 
+ADD CONSTRAINT fk_teacher_specializations_qualification 
+FOREIGN KEY (qualification_id) REFERENCES academic_qualifications(id) ON DELETE SET NULL;
+
 -- HORÁRIOS DISPONÍVEIS POR PROFESSOR
 ALTER TABLE teacher_availability 
 ADD CONSTRAINT fk_teacher_availability_teacher 
-FOREIGN KEY (teacher_id) REFERENCES teachers(user_id) ON DELETE CASCADE;
+FOREIGN KEY (teacher_id) REFERENCES teachers(staff_id) ON DELETE CASCADE;
+
+ALTER TABLE teacher_availability 
+ADD CONSTRAINT fk_teacher_availability_approved_by 
+FOREIGN KEY (approved_by) REFERENCES staff(id) ON DELETE SET NULL;
 
 -- NOTAS
 ALTER TABLE grades 
@@ -133,7 +151,7 @@ FOREIGN KEY (student_id) REFERENCES students(user_id) ON DELETE CASCADE;
 
 ALTER TABLE grades 
 ADD CONSTRAINT fk_grades_class 
-FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE;
+FOREIGN KEY (class_schedules_id) REFERENCES class_schedules(id) ON DELETE CASCADE;
 
 ALTER TABLE grades 
 ADD CONSTRAINT fk_grades_assessment_type 
@@ -186,8 +204,14 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 -- DEPARTAMENTOS
 ALTER TABLE departments 
-ADD CONSTRAINT fk_departments_head 
-FOREIGN KEY (head_user_id) REFERENCES users(id) ON DELETE RESTRICT;
+ADD CONSTRAINT fk_departments_head_staff 
+FOREIGN KEY (head_staff_id) REFERENCES staff(id) ON DELETE RESTRICT;
+
+ALTER TABLE departments 
+ADD CONSTRAINT uq_departments_name UNIQUE (name);
+
+ALTER TABLE departments 
+ADD CONSTRAINT uq_departments_acronym UNIQUE (acronym);
 
 -- ORÇAMENTOS POR DEPARTAMENTO
 ALTER TABLE department_budgets 
@@ -211,7 +235,7 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 -- CARGOS DOS FUNCIONÁRIOS
 ALTER TABLE staff_positions 
 ADD CONSTRAINT fk_staff_positions_user 
-FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+FOREIGN KEY (user_id) REFERENCES staff(id) ON DELETE CASCADE;
 
 ALTER TABLE staff_positions 
 ADD CONSTRAINT fk_staff_positions_position 
@@ -220,16 +244,16 @@ FOREIGN KEY (position_id) REFERENCES positions(id) ON DELETE CASCADE;
 -- FÉRIAS E LICENÇAS
 ALTER TABLE staff_leaves 
 ADD CONSTRAINT fk_staff_leaves_staff 
-FOREIGN KEY (staff_id) REFERENCES users(id) ON DELETE CASCADE;
+FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE;
 
 ALTER TABLE staff_leaves 
 ADD CONSTRAINT fk_staff_leaves_replacement 
-FOREIGN KEY (replacement_staff_id) REFERENCES users(id) ON DELETE SET NULL;
+FOREIGN KEY (replacement_staff_id) REFERENCES staff(id) ON DELETE SET NULL;
 
 -- AVALIAÇÕES
 ALTER TABLE evaluation 
 ADD CONSTRAINT fk_evaluation_initiator 
-FOREIGN KEY (iniciator_user_id) REFERENCES users(id) ON DELETE RESTRICT;
+FOREIGN KEY (iniciator_staff_id) REFERENCES staff(id) ON DELETE RESTRICT;
 
 -- AVALIAÇÕES DE FUNCIONÁRIOS
 ALTER TABLE staff_evaluation 
@@ -238,7 +262,7 @@ FOREIGN KEY (evaluation_id) REFERENCES evaluation(id) ON DELETE CASCADE;
 
 ALTER TABLE staff_evaluation 
 ADD CONSTRAINT fk_staff_evaluation_staff 
-FOREIGN KEY (staff_id) REFERENCES users(id) ON DELETE CASCADE;
+FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE;
 
 -- AVALIAÇÕES DE CURSOS
 ALTER TABLE course_evaluation 
@@ -249,41 +273,9 @@ ALTER TABLE course_evaluation
 ADD CONSTRAINT fk_course_evaluation_course 
 FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE;
 
--- PERFORMANCE
-ALTER TABLE performance 
-ADD CONSTRAINT fk_performance_evaluation 
-FOREIGN KEY (evaluation_id) REFERENCES evaluation(id) ON DELETE CASCADE;
-
-ALTER TABLE performance 
-ADD CONSTRAINT fk_performance_evaluator 
-FOREIGN KEY (evaluator_id) REFERENCES users(id) ON DELETE RESTRICT;
-
--- ACESSO DE ALUNOS NO CURSO
-ALTER TABLE course_access 
-ADD CONSTRAINT fk_course_access_user 
-FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
-
-ALTER TABLE course_access 
-ADD CONSTRAINT fk_course_access_availability 
-FOREIGN KEY (course_availability_id) REFERENCES course_availability(course_id) ON DELETE CASCADE;
-
--- SERVIÇOS
-ALTER TABLE services 
-ADD CONSTRAINT fk_services_type 
-FOREIGN KEY (service_types_id) REFERENCES service_types(id) ON DELETE RESTRICT;
-
-ALTER TABLE services 
-ADD CONSTRAINT fk_services_department 
-FOREIGN KEY (departament_id) REFERENCES departments(id) ON DELETE RESTRICT;
-
--- AVALIAÇÕES DE SERVIÇOS
-ALTER TABLE service_evaluation 
-ADD CONSTRAINT fk_service_evaluation_evaluation 
-FOREIGN KEY (evaluation_id) REFERENCES evaluation(id) ON DELETE CASCADE;
-
-ALTER TABLE service_evaluation 
-ADD CONSTRAINT fk_service_evaluation_service 
-FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE;
+-- TIPOS DE AVALIAÇÃO
+ALTER TABLE assessment_types 
+ADD CONSTRAINT uq_assessment_types_code UNIQUE (code);
 
 -- ==========================================================================================
 -- CONSTRAINTS FINANCEIRAS

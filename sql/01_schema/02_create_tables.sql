@@ -6,20 +6,20 @@
 -- ==============================================================
 
 -- ==========================================================================================
--- Académica
+-- Acadêmica
 -- oferecimento de cursos, criação de turmas, matrícula de alunos,
 -- atribuição de professores e avaliação de desempenho discente
 -- ==========================================================================================
 
 -- TABELA DE CURSOS
--- Define os cursos oferecidos pela instituição
+-- Define os cursos oferecidos pela instituição, por departamento e por coordenador
 CREATE TABLE IF NOT EXISTS courses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL, -- Nome do curso
     description TEXT, -- Descrição do curso
-    duration_semesters INT NOT NULL, -- Duração em semestres (nome mais descritivo)
-    department_id INT NOT NULL, -- Departamento responsável pelo curso
-    coordinator_user_id INT NOT NULL, -- Coordenador do curso (referencia users.id)
+    duration_semesters INT NOT NULL, -- Duração em semestres 
+    department_id INT NOT NULL, -- Departamento responsável pelo curso | FK para departments.id
+    coordinator_staff_id INT NOT NULL, -- Coordenador do curso (referencia staff.id) | FK para staff.id unique
     level ENUM(
         'skill', -- Nível de habilidade
         'technical', -- Nível técnico
@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS subjects (
 -- Relaciona disciplinas com cursos e define semestre e pré-requisitos
 CREATE TABLE IF NOT EXISTS course_subjects (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    subject_id INT NOT NULL, -- ID da disciplina
-    course_id INT NOT NULL, -- ID do curso
+    subject_id INT NOT NULL, -- ID da disciplina | FK para subjects.id
+    course_id INT NOT NULL, -- ID do curso | FK para courses.id
     semester INT NOT NULL, -- Semestre em que a disciplina é oferecida
     prerequisites JSON, -- Lista de IDs de disciplinas pré-requisito
     syllabus TEXT, -- Programa detalhado da disciplina
@@ -67,8 +67,10 @@ CREATE TABLE IF NOT EXISTS course_subjects (
 
 -- TABELA DE DISPONIBILIDADE DE CURSOS
 -- Define quantos alunos podem ser admitidos por curso a cada ano
+-- Cada curso pode ter várias disponibilidades, mas cada disponibilidade é única por ano
 CREATE TABLE IF NOT EXISTS course_availability (
-    course_id INT NOT NULL, -- ID do curso
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT NOT NULL, -- ID do curso | FK para courses.id
     academic_year INT NOT NULL, -- Ano letivo (nome mais descritivo)
     student_limit INT NOT NULL, -- Limite máximo de alunos
     prerequisites JSON, -- Lista de pré-requisitos para se candidatar ao curso
@@ -81,10 +83,10 @@ CREATE TABLE IF NOT EXISTS course_availability (
 CREATE TABLE IF NOT EXISTS classes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(20) NOT NULL, -- Nome da turma
-    code VARCHAR(10) NOT NULL, -- Código único da turma (corrigido de 'sigla')
-    course_id INT NOT NULL, -- Curso ao qual a turma pertence
+    code VARCHAR(10) NOT NULL, -- Código único da turma
+    course_id INT NOT NULL, -- Curso ao qual a turma pertence | FK para courses.id
     academic_year INT NOT NULL, -- Ano letivo
-    semester INT NOT NULL, -- Semestre (1 ou 2)
+    semester INT NOT NULL, -- Semestre (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) n pode passar de course.duration_semesters
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -116,14 +118,20 @@ CREATE TABLE IF NOT EXISTS time_slots (
 );
 
 -- TABELA DE HORÁRIOS DAS TURMAS
--- Relaciona turmas com seus horários específicos de disciplinas
+-- Relaciona turmas com seus horários específicos de disciplinas e professores
 CREATE TABLE IF NOT EXISTS class_schedules (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    class_id INT NOT NULL, -- ID da turma
-    subject_id INT NOT NULL, -- Disciplina ministrada nesta turma
-    teacher_id INT NOT NULL, -- ID do professor responsável
-    time_slot_ids JSON NOT NULL, -- IDs dos horários [1, 2, 3] (lista de IDs de time_slots)
-    room_id INT, -- Sala onde as aulas são ministradas
+    class_id INT NOT NULL, -- ID da turma | FK para classes.id
+    subject_id INT NOT NULL, -- Disciplina ministrada nesta turma | FK para subjects.id
+    teacher_id INT NOT NULL, -- ID do professor responsável | FK para teachers.user_id
+    time_slot_ids JSON NOT NULL, -- IDs dos horários [1, 2, 3] (lista de IDs de time_slots) | FK para time_slots.id
+    room_id INT, -- Sala onde as aulas são ministradas | FK para rooms.id
+    status ENUM(
+        'draft', -- Rascunho
+        'approved', -- Aprovado
+        'rejected' -- Rejeitado
+    ) NOT NULL DEFAULT 'draft', -- Status da turma
+    approved_by INT, -- ID do usuário que aprovou o horário | FK para staff.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -156,7 +164,7 @@ CREATE TABLE IF NOT EXISTS resources (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL, -- Nome do recurso (ex: projetor, ar-condicionado)
     description TEXT, -- Descrição do recurso
-    responsible_department_id INT NOT NULL, -- Departamento responsável pelo recurso
+    responsible_department_id INT NOT NULL, -- Departamento responsável pelo recurso | FK para departments.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -165,8 +173,8 @@ CREATE TABLE IF NOT EXISTS resources (
 -- Define os recursos disponíveis em cada sala de aula
 CREATE TABLE IF NOT EXISTS room_resources (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    room_id INT NOT NULL, -- ID da sala
-    resource_id INT NOT NULL, -- ID do recurso
+    room_id INT NOT NULL, -- ID da sala | FK para rooms.id
+    resource_id INT NOT NULL, -- ID do recurso | FK para resources.id
     status_resources ENUM(
         'available', -- Recurso disponível
         'unavailable', -- Recurso indisponível
@@ -182,8 +190,8 @@ CREATE TABLE IF NOT EXISTS room_resources (
 -- Gerenciar reservas especiais de salas para atividades não regulares
 CREATE TABLE IF NOT EXISTS room_bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    room_id INT NOT NULL, -- ID da sala reservada
-    department_id INT NOT NULL, -- ID do departamento solicitante
+    room_id INT NOT NULL, -- ID da sala reservada | FK para rooms.id
+    department_id INT NOT NULL, -- ID do departamento solicitante | FK para departments.id
     reason TEXT NOT NULL, -- Motivo da reserva
     date DATE NOT NULL, -- Data da reserva
     start_time TIME NOT NULL, -- Horário de início da reserva
@@ -202,7 +210,7 @@ CREATE TABLE IF NOT EXISTS room_bookings (
 -- TABELA DE ALunOS
 -- Armazena informações dos alunos
 CREATE TABLE IF NOT EXISTS students (
-    user_id INT NOT NULL, -- Referencia users.id
+    user_id INT NOT NULL PRIMARY KEY, -- Referencia users.id | FK para users.id
     student_number VARCHAR(50) NOT NULL, -- Número de matrícula único
     studying BOOLEAN DEFAULT TRUE, -- Se o aluno está ativo
     searching BOOLEAN DEFAULT TRUE, -- Se o aluno está procurando emprego
@@ -215,8 +223,8 @@ CREATE TABLE IF NOT EXISTS students (
 -- Registra a matrícula dos alunos nos cursos
 CREATE TABLE IF NOT EXISTS student_enrollments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT NOT NULL, -- ID do aluno
-    course_id INT NOT NULL, -- ID do curso
+    student_id INT NOT NULL, -- ID do aluno | FK para students.user_id
+    course_id INT NOT NULL, -- ID do curso | FK para courses.id
     enrollment_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de matrícula
     status ENUM(
         'active', -- Ativo
@@ -232,17 +240,24 @@ CREATE TABLE IF NOT EXISTS student_enrollments (
 );
 
 -- TABELA DE MATRÍCULAS EM TURMAS
--- Registra quais alunos estão matriculados em quais turmas
+-- Registra quais alunos estão matriculados em quais disciplinas numa dada turma (class_schedules)
 CREATE TABLE IF NOT EXISTS class_enrollments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT NOT NULL, -- ID do aluno
-    class_id INT NOT NULL, -- ID da turma
+    student_id INT NOT NULL, -- ID do aluno | FK para students.user_id
+    class_schedules_id INT NOT NULL, -- ID da materia  que se inscreveu na turma | FK para class_schedules.id
     enrollment_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de matrícula na turma
+    type_of_enrollment ENUM(
+        'regular', -- Matrícula regular
+        'special', -- Matrícula especial
+        'special_exam', -- Matrícula especial para exame
+        'other' -- Outro tipo de matrícula
+    ) NOT NULL DEFAULT 'regular', -- Tipo de matrícula
     status ENUM(
-        'active',
-        'dropped',
-        'completed',
-        'failed'
+        'active', -- Ativo
+        'dropped', -- Desistiu
+        'completed', -- Concluído
+        'transferred', -- Transferido
+        'failed' -- Reprovado
     ) NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -251,7 +266,7 @@ CREATE TABLE IF NOT EXISTS class_enrollments (
 -- TABELA DE PROFESSORES
 -- Armazena informações dos professores
 CREATE TABLE IF NOT EXISTS teachers (
-    user_id INT NOT NULL, -- Referência ao staff
+    staff_id INT NOT NULL PRIMARY KEY, -- Referência ao staff | FK para staff.user_id
     academic_rank ENUM(
         'instructor',
         'assistant_professor',
@@ -266,9 +281,7 @@ CREATE TABLE IF NOT EXISTS teachers (
         'visiting',
         'emeritus'
     ) DEFAULT 'adjunct',
-    max_weekly_hours INT DEFAULT 40,
-    research_area TEXT,
-    is_thesis_advisor BOOLEAN DEFAULT FALSE,
+    is_thesis_advisor BOOLEAN DEFAULT FALSE, -- Se o professor é orientador de tese
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -277,17 +290,17 @@ CREATE TABLE IF NOT EXISTS teachers (
 -- Áreas de expertise e disciplinas que podem lecionar
 CREATE TABLE IF NOT EXISTS teacher_specializations (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    teacher_id INT NOT NULL,
-    subject_area VARCHAR(100) NOT NULL,
-    subject_id INT NOT NULL, -- ID da disciplina (referencia subjects.id)
+    teacher_id INT NOT NULL, -- ID do professor | FK para teachers.user_id
+    qualification_id INT NOT NULL, -- ID da qualificação | FK para academic_qualifications.id
+    subject_area VARCHAR(100) NOT NULL, -- Área de conhecimento
+    subject_id INT NOT NULL, -- ID da disciplina | FK para subjects.id
     proficiency_level ENUM(
         'basic',
         'intermediate',
         'advanced',
         'expert'
     ) DEFAULT 'intermediate',
-    years_experience INT DEFAULT 0,
-    is_certified BOOLEAN DEFAULT FALSE,
+    is_approved BOOLEAN DEFAULT FALSE, -- Se o professor é aprovado para lecionar a disciplina
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -296,10 +309,13 @@ CREATE TABLE IF NOT EXISTS teacher_specializations (
 -- Define os horários disponíveis de cada professor para ministrar aulas
 CREATE TABLE IF NOT EXISTS teacher_availability (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    teacher_id INT NOT NULL, -- ID do professor
-    time_slot_ids JSON NOT NULL, -- ID do horário {"1", "2", "3"} (lista de IDs de time_slots)
+    teacher_id INT NOT NULL, -- ID do professor | FK para teachers.user_id
+    time_slot_ids JSON NOT NULL, -- ID do horário [1, 2, 3] (lista de IDs de time_slots) | FK para time_slots.id
     total_hours INT NOT NULL, -- Total de horas semanais disponíveis
-    aproved BOOLEAN DEFAULT FALSE, -- Se o horário foi aprovado pelo coordenado
+    approved BOOLEAN DEFAULT FALSE, -- Se o horário foi aprovado pelo coordenado
+    approved_by INT, -- ID do usuário que aprovou o horário | FK para staff.id
+    year_of_approval INT, -- Ano de aprovação do horário
+    semester_of_approval INT, -- Semestre de aprovação do horário
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -308,9 +324,9 @@ CREATE TABLE IF NOT EXISTS teacher_availability (
 -- Armazena as avaliações dos alunos
 CREATE TABLE IF NOT EXISTS grades (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT NOT NULL, -- ID do aluno
-    class_id INT NOT NULL, -- ID da turma
-    assessment_type_id INT NOT NULL, -- ID do tipo de avaliação
+    student_id INT NOT NULL, -- ID do aluno | FK para students.user_id
+    class_id INT NOT NULL, -- ID da turma | FK para classes.id
+    assessment_type_id INT NOT NULL, -- ID do tipo de avaliação | FK para assessment_types.id
     score DECIMAL(5, 2) NOT NULL, -- Nota obtida (0-100)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -321,9 +337,9 @@ CREATE TABLE IF NOT EXISTS grades (
 -- Podem ser configuráveis (PP1, PP2, Exame Final, Recuperação, Especial)
 CREATE TABLE assessment_types (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(20) NOT NULL, -- Código único
-    name VARCHAR(50) NOT NULL,
-    description TEXT,
+    code VARCHAR(20) NOT NULL, -- Código único | unique
+    name VARCHAR(50) NOT NULL, -- Nome da avaliação
+    description TEXT, -- Descrição da avaliação
     weight DECIMAL(5, 2), -- Peso da avaliação
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -334,8 +350,8 @@ CREATE TABLE assessment_types (
 -- Registra a presença dos alunos em cada aula
 CREATE TABLE IF NOT EXISTS attendance (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    student_id INT NOT NULL, -- ID do aluno
-    classes_attended_id INT NOT NULL, -- ID da aula
+    student_id INT NOT NULL, -- ID do aluno | FK para students.user_id
+    classes_attended_id INT NOT NULL, -- ID da aula | FK para classes_attended.id
     status ENUM(
         'present',
         'absent',
@@ -351,16 +367,16 @@ CREATE TABLE IF NOT EXISTS attendance (
 -- Tabela que representa as aulas dadas e marca faltas
 CREATE TABLE IF NOT EXISTS classes_attended (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    class_id INT NOT NULL, -- ID da turma
+    class_id INT NOT NULL, -- ID da turma | FK para classes.id
     class_date DATE NOT NULL, -- Data da aula
-    time_slot_id INT NOT NULL, -- Horário da aula
+    time_slot_id INT NOT NULL, -- Horário da aula | FK para time_slots.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- ==========================================================================================
 -- Administrativa
--- pessoal administrativo distribuído por departamentos (Secretaria Académica,
+-- pessoal administrativo distribuído por departamentos (Secretaria Acadêmica,
 -- Tesouraria, Recursos Humanos, Biblioteca, Laboratórios, etc.)
 -- ==========================================================================================
 
@@ -421,7 +437,7 @@ CREATE TABLE IF NOT EXISTS user_role_assignments (
 -- TABELA DE IDENTIFICAÇÃO DE USUÁRIOS
 -- Armazena informações oficiais de identificação
 CREATE TABLE IF NOT EXISTS user_identification (
-    user_id INT NOT NULL, -- Referencia users.id
+    user_id INT NOT NULL PRIMARY KEY, -- Referencia users.id | FK para users.id
     document_type ENUM(
         'id_card', -- Cartão de identidade (padrão internacional)
         'residence_id', -- Cartão de residência
@@ -439,7 +455,7 @@ CREATE TABLE IF NOT EXISTS user_identification (
 -- TABELA DE SAUDE DO USUÁRIO
 -- Armazena informações de saúde e emergência do usuário
 CREATE TABLE IF NOT EXISTS user_health (
-    user_id INT NOT NULL, -- Referencia users.id
+    user_id INT NOT NULL PRIMARY KEY, -- Referencia users.id | FK para users.id
     conditions TEXT, -- Condições médicas conhecidas
     medications TEXT, -- Medicamentos em uso
     allergies TEXT, -- Alergias conhecidas
@@ -447,8 +463,8 @@ CREATE TABLE IF NOT EXISTS user_health (
     emergency_contact_name VARCHAR(100),
     emergency_contact_relationship ENUM(
         'parent', -- Pai/Mãe
-        'sibling', -- Irmão/Irmã
-        'spouse', -- Cônjuge
+        'sibling', -- Irmão/Irmã        
+        'partner', -- Cônjuge
         'family', -- Outro membro da família
         'friend', -- Amigo
         'other' -- Outro tipo de relacionamento
@@ -462,10 +478,10 @@ CREATE TABLE IF NOT EXISTS user_health (
 -- Organiza a estrutura administrativa da instituição
 CREATE TABLE IF NOT EXISTS departments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL, -- Nome completo do departamento
-    acronym VARCHAR(10) NOT NULL, -- Sigla do departamento (corrigido de 'sigla')
+    name VARCHAR(100) NOT NULL, -- Nome completo do departamento | unique
+    acronym VARCHAR(10) NOT NULL, -- Sigla do departamento | unique
     description TEXT, -- Descrição das atividades do departamento
-    head_user_id INT NOT NULL, -- ID do chefe do departamento (referencia users.id)
+    head_staff_id INT NOT NULL, -- ID do chefe do departamento (referencia staff.id)
     status ENUM(
         'active',
         'inactive',
@@ -486,7 +502,7 @@ CREATE TABLE IF NOT EXISTS departments (
 -- Armazena o orçamento anual de cada departamento
 CREATE TABLE IF NOT EXISTS department_budgets (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    department_id INT NOT NULL, -- ID do departamento
+    department_id INT NOT NULL, -- ID do departamento | FK para departments.id
     fiscal_year INT NOT NULL, -- Ano fiscal (nome mais descritivo)
     budget_amount DECIMAL(15, 2) NOT NULL, -- Valor do orçamento
     spent_amount DECIMAL(15, 2) DEFAULT 0.00, -- Valor já gasto
@@ -499,7 +515,7 @@ CREATE TABLE IF NOT EXISTS department_budgets (
 -- TABELA DE FUNCIONÁRIOS
 -- Armazena informações dos funcionários administrativos
 CREATE TABLE IF NOT EXISTS staff (
-    user_id INT NOT NULL, -- Referencia users.id
+    user_id INT NOT NULL PRIMARY KEY, -- Referencia users.id | FK para users.id
     staff_number VARCHAR(50) NOT NULL, -- Número de identificação do funcionário
     hire_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de contratação
     employment_type ENUM(
@@ -540,7 +556,7 @@ CREATE TABLE IF NOT EXISTS staff (
 -- Armazena as qualificações e formações dos funcionários administrativos e docentes
 CREATE TABLE IF NOT EXISTS academic_qualifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL, -- Referencia users.id
+    user_id INT NOT NULL, -- Referencia users.id | FK para users.id
     title VARCHAR(100) NOT NULL, -- Título da qualificação (ex: Bacharel em Engenharia)
     field_of_study VARCHAR(100), -- Área de estudo (opcional)
     qualification_type ENUM(
@@ -577,8 +593,8 @@ CREATE TABLE IF NOT EXISTS positions (
 -- (decano, coordenador, professor, assistente, etc.)
 CREATE TABLE IF NOT EXISTS staff_positions (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL, -- Referencia users.id
-    position_id INT NOT NULL, -- ID do cargo 
+    user_id INT NOT NULL, -- Referencia users.id | FK para users.id
+    position_id INT NOT NULL, -- ID do cargo | FK para positions.id
     description TEXT, -- Descrição das responsabilidades no cargo
     start_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de início no cargo
     end_date DATE, -- Data de término no cargo (se aplicável)
@@ -595,7 +611,7 @@ CREATE TABLE IF NOT EXISTS staff_positions (
 -- Registra as férias e licenças dos funcionários administrativos
 CREATE TABLE IF NOT EXISTS staff_leaves (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    staff_id INT NOT NULL, -- Referencia users.id
+    staff_id INT NOT NULL, -- Referencia users.id | FK para staff.user_id
     leave_type ENUM(
         'vacation',
         'sick_leave',
@@ -625,7 +641,9 @@ CREATE TABLE IF NOT EXISTS staff_leaves (
 -- Registra as avaliações de desempenho dos funcionários administrativos e docentes
 CREATE TABLE IF NOT EXISTS evaluation (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    iniciator_user_id INT NOT NULL, -- ID do usuário que inicia a avaliação (referencia users.id)
+    iniciator_staff_id INT NOT NULL, -- ID do funcionário que inicia a avaliação | FK para staff.id
+    title VARCHAR(100) NOT NULL, -- Título da avaliação
+    description TEXT, -- Descrição da avaliação
     type_of_evaluated ENUM(
         'staff', -- Funcionário administrativo
         'teacher', -- Professor
@@ -647,11 +665,9 @@ CREATE TABLE IF NOT EXISTS evaluation (
         'peer_review',
         'self_assessment'
     ) NOT NULL,
+    criteria JSON, -- Critérios de avaliação (ex: {"criteria1": "description", "criteria2": "description"})
     evaluation_date_start DATE NOT NULL, -- Data de início da avaliação
     evaluation_date_end DATE NOT NULL, -- Data de término da avaliação
-    title VARCHAR(100) NOT NULL, -- Título da avaliação
-    description TEXT, -- Descrição da avaliação
-    criterios JSON, -- Critérios de avaliação (ex: {"criteria1": "description", "criteria2": "description"})
     status_evaluation ENUM(
         'started', -- Avaliação iniciada
         'in_progress', -- Avaliação em progresso
@@ -667,8 +683,8 @@ CREATE TABLE IF NOT EXISTS evaluation (
 -- Registra as avaliações de desempenho dos funcionários administrativos e docentes
 CREATE TABLE IF NOT EXISTS staff_evaluation (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    evaluation_id INT NOT NULL, -- Referencia evaluation.id
-    staff_id INT NOT NULL, -- Referencia users.id
+    evaluation_id INT NOT NULL, -- Referencia evaluation.id | FK para evaluation.id
+    staff_id INT NOT NULL, -- Referencia users.id | FK para users.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -677,8 +693,8 @@ CREATE TABLE IF NOT EXISTS staff_evaluation (
 -- Registra as avaliações dos cursos pelos alunos
 CREATE TABLE IF NOT EXISTS course_evaluation (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    evaluation_id INT NOT NULL, -- Referencia evaluation.id
-    course_id INT NOT NULL, -- ID do curso avaliado (referencia courses.id)
+    evaluation_id INT NOT NULL, -- Referencia evaluation.id | FK para evaluation.id
+    course_id INT NOT NULL, -- ID do curso avaliado (referencia courses.id) | FK para courses.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -688,19 +704,18 @@ CREATE TABLE IF NOT EXISTS course_evaluation (
 -- Pode ser usado para feedback de alunos, professores, funcionários e companias terceirizadas
 CREATE TABLE IF NOT EXISTS performance (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    evaluation_id INT NOT NULL, -- Referencia evaluation.id
-    evaluator_id INT NOT NULL, -- ID do avaliador (referencia users.id)
+    evaluation_id INT NOT NULL, -- Referencia evaluation.id | FK para evaluation.id
+    evaluator_id INT NOT NULL, -- ID do avaliador | FK para users.id
     evaluation_date DATE NOT NULL, -- Data da avaliação
-    overall_score DECIMAL(3, 2), -- Nota geral da avaliação (0-5)
-    score INT, -- Nota da avaliação
+    criteria_scores JSON, -- Notas de cada critério de avaliação | n  pode ser maior q avaluação.criteria.weight
     feedback TEXT, -- Comentários do avaliador
     status ENUM(
-        'draft',
-        'submitted',
-        'reviewed',
-        'approved',
-        'disputed'
-    ) DEFAULT 'draft',
+        'draft', -- Rascunho 
+        'submitted', -- Enviado
+        'reviewed', -- Revisado
+        'approved', -- Aprovado
+        'disputed' -- Contestado
+    ) DEFAULT 'draft', -- Status da avaliação
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -709,8 +724,8 @@ CREATE TABLE IF NOT EXISTS performance (
 -- Registra o acesso dos alunos aos cursos
 CREATE TABLE IF NOT EXISTS course_access (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL, -- ID do user q quer ser aluno
-    course_availability_id INT NOT NULL, -- ID do curso e ano academico a q se inscreve course_availability.course_id
+    user_id INT NOT NULL, -- ID do user q quer ser aluno | FK para users.id
+    course_availability_id INT NOT NULL, -- ID do curso e ano academico a q se inscreve course_availability.course_id | FK para course_availability.id
     exam_score DECIMAL(5, 2), -- Nota do exame de admissão
     status ENUM(
         'pending', -- Pendente
@@ -726,16 +741,16 @@ CREATE TABLE IF NOT EXISTS course_access (
 -- Registra os serviços prestados pela instituição aos alunos (secretaria academica, biblioteca, etc.)
 CREATE TABLE IF NOT EXISTS services (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL, -- Nome do serviço 
+    name VARCHAR(100) NOT NULL, -- Nome do serviço | FK para service_types.name
     description TEXT, -- Descrição do serviço
-    service_types_id INT NOT NULL, -- ID do tipo de serviço 
+    service_types_id INT NOT NULL, -- ID do tipo de serviço | FK para service_types.id
     value DECIMAL(10, 2) NOT NULL, -- Valor do serviço
-    departament_id INT NOT NULL, -- ID do departamento responsável pelo serviço
+    departament_id INT NOT NULL, -- ID do departamento responsável pelo serviço | FK para departments.id
     status ENUM(
-        'active',
-        'inactive',
-        'suspended',
-        'discontinued'
+        'active', -- Ativo
+        'inactive', -- Inativo
+        'suspended', -- Suspenso
+        'discontinued' -- Descontinuado
     ) NOT NULL DEFAULT 'active', -- Status do serviço
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -755,19 +770,19 @@ CREATE TABLE IF NOT EXISTS service_types (
 -- Registra as avaliações de serviços prestados pela instituição
 CREATE TABLE IF NOT EXISTS service_evaluation (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    evaluation_id INT NOT NULL, -- Referencia evaluation.id
-    service_id INT NOT NULL, -- ID da empresa prestadora de serviço (referencia users.id)
+    evaluation_id INT NOT NULL, -- Referencia evaluation.id | FK para evaluation.id
+    service_id INT NOT NULL, -- ID da empresa prestadora de serviço (referencia users.id) | FK para users.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
---TABELA DE PAGAMENTOS
+-- TABELA DE PAGAMENTOS
 -- Registra os pagamentos realizados
 CREATE TABLE IF NOT EXISTS payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DECIMAL(10, 2) NOT NULL, -- Valor pago
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Data do pagamento
-    payment_method_id INT NOT NULL, -- ID do método de pagamento (referencia payment_types.id)
+    payment_method_id INT NOT NULL, -- ID do método de pagamento (referencia payment_types.id) | FK para payment_types.id
     reference_number VARCHAR(50), -- Número de referência do pagamento
     status ENUM(
         'pending', -- Pendente
@@ -783,9 +798,9 @@ CREATE TABLE IF NOT EXISTS payments (
 -- Registra os pagamentos realizados pelos serviços prestados
 CREATE TABLE IF NOT EXISTS studant_payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    payment_id INT NOT NULL, -- Referencia payments.id
-    service_id INT NOT NULL, -- ID do serviço pago (referencia services.id)
-    student_id INT NOT NULL, -- ID do aluno que pagou (referencia students.user_id)
+    payment_id INT NOT NULL, -- Referencia payments.id | FK para payments.id
+    service_id INT NOT NULL, -- ID do serviço pago (referencia services.id) | FK para services.id
+    student_id INT NOT NULL, -- ID do aluno que pagou (referencia students.user_id) | FK para students.user_id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -794,10 +809,10 @@ CREATE TABLE IF NOT EXISTS studant_payments (
 -- Registra os pagamentos realizados às empresas terceirizadas
 CREATE TABLE IF NOT EXISTS company_payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    payment_id INT NOT NULL, -- Referencia payments.id
-    company_id INT NOT NULL, -- ID da empresa que recebeu o pagamento (referencia users.id)
-    department_budgets_id INT NOT NULL, -- ID do orçamento do departamento (referencia department_budgets.id)
-    approved_by_staff INT NOT NULL, -- ID do funcionario que aprovou o pagamento (referencia users.id)
+    payment_id INT NOT NULL, -- Referencia payments.id | FK para payments.id
+    company_id INT NOT NULL, -- ID da empresa que recebeu o pagamento (referencia users.id) | FK para users.id
+    department_budgets_id INT NOT NULL, -- ID do orçamento do departamento (referencia department_budgets.id) | FK para department_budgets.id
+    approved_by_staff INT NOT NULL, -- ID do funcionario que aprovou o pagamento (referencia users.id) | FK para users.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -813,8 +828,8 @@ CREATE TABLE IF NOT EXISTS staff_payments (
         'commission', -- Comissão
         'other' -- Outro tipo de pagamento
     ) NOT NULL, -- Tipo de pagamento
-    payment_id INT NOT NULL, -- Referencia payments.id
-    staff_id INT NOT NULL, -- ID do funcionário que recebeu o pagamento (referencia users.id)
+    payment_id INT NOT NULL, -- Referencia payments.id | FK para payments.id
+    staff_id INT NOT NULL, -- ID do funcionário que recebeu o pagamento (referencia users.id) | FK para users.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -833,7 +848,7 @@ CREATE TABLE IF NOT EXISTS payment_types (
 -- Registra as multas aplicadas a alunos e empresas
 CREATE TABLE IF NOT EXISTS fines (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    payment_id INT NOT NULL, -- ID do pagamento (referencia payments.id)
+    payment_id INT NOT NULL, -- ID do pagamento (referencia payments.id) | FK para payments.id
     fined ENUM(
         'student', -- Aluno
         'company' -- Empresa
@@ -849,6 +864,8 @@ CREATE TABLE IF NOT EXISTS fines (
 -- coordenadores de curso responsáveis por currículos, grade horária e
 -- indicadores de qualidade
 -- ==========================================================================================
+
+
 
 -- ==========================================================================================
 -- Operacional
@@ -873,8 +890,8 @@ CREATE TABLE IF NOT EXISTS companies (
 -- Relaciona empresas com departamentos responsáveis pela fiscalização
 CREATE TABLE IF NOT EXISTS companies_departments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    company_id INT NOT NULL, -- ID da empresa (referencia companies.id)
-    department_id INT NOT NULL, -- ID do departamento (referencia departments.id)
+    company_id INT NOT NULL, -- ID da empresa (referencia companies.id) | FK para companies.id
+    department_id INT NOT NULL, -- ID do departamento (referencia departments.id) | FK para departments.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -883,7 +900,7 @@ CREATE TABLE IF NOT EXISTS companies_departments (
 -- Registra os contratos firmados com empresas terceirizadas
 CREATE TABLE IF NOT EXISTS companies_contracts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    company_id INT NOT NULL, -- ID da empresa (referencia companies.id)
+    company_id INT NOT NULL, -- ID da empresa (referencia companies.id) | FK para companies.id
     contract_details TEXT NOT NULL, -- Detalhes do contrato
     started_at DATE NOT NULL, -- Data de início do contrato
     ended_at DATE, -- Data de término do contrato (se aplicável)
@@ -903,7 +920,7 @@ CREATE TABLE IF NOT EXISTS companies_contracts (
 -- Define os acordos de nível de serviço com as empresas terceirizadas
 CREATE TABLE IF NOT EXISTS companies_sla (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    company_id INT NOT NULL, -- ID da empresa (referencia companies.id)
+    company_id INT NOT NULL, -- ID da empresa (referencia companies.id) | FK para companies.id
     sla_name VARCHAR(100) NOT NULL, -- Nome do SLA
     description TEXT, -- Descrição do SLA
     sla_type ENUM(
@@ -925,13 +942,13 @@ CREATE TABLE IF NOT EXISTS companies_sla (
 -- Registra as avaliações dos SLA das empresas terceirizadas
 CREATE TABLE IF NOT EXISTS companies_sla_evaluation (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    company_id INT NOT NULL, -- ID da empresa avaliada (referencia companies.id)
-    sla_id INT NOT NULL, -- ID do SLA avaliado (referencia companies_sla.id)
+    company_id INT NOT NULL, -- ID da empresa avaliada (referencia companies.id) | FK para companies.id
+    sla_id INT NOT NULL, -- ID do SLA avaliado (referencia companies_sla.id) | FK para companies_sla.id
     evaluation_period DATE NOT NULL, -- Período de avaliação (mês/ano)
     achieved_percentage DECIMAL(5, 2) NOT NULL, -- Percentual alcançado
     penalty_applied BOOLEAN DEFAULT FALSE, -- Se foi aplicada penalidade
     penalty_amount DECIMAL(10, 2) DEFAULT 0.00, -- Valor da penalidade
-    evaluator_id INT NOT NULL, -- ID do avaliador (referencia users.id)
+    evaluator_id INT NOT NULL, -- ID do avaliador (referencia users.id) | FK para users.id
     feedback TEXT, -- Comentários do avaliador
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -945,7 +962,7 @@ CREATE TABLE IF NOT EXISTS companies_sla_evaluation (
 -- Registra todas as operações críticas do sistema para rastreabilidade
 CREATE TABLE IF NOT EXISTS audit_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL, -- ID do usuário que executou a operação
+    user_id INT NOT NULL, -- ID do usuário que executou a operação | FK para users.id
     table_name VARCHAR(50) NOT NULL, -- Nome da tabela afetada
     operation_type ENUM(
         'INSERT',
@@ -1045,8 +1062,8 @@ CREATE TABLE IF NOT EXISTS library_items (
 -- Registra empréstimos, devoluções e histórico de uso dos itens
 CREATE TABLE IF NOT EXISTS library_loans (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    library_item_id INT NOT NULL, -- ID do item emprestado
-    borrower_id INT NOT NULL, -- ID do usuário que pegou emprestado
+    library_item_id INT NOT NULL, -- ID do item emprestado | FK para library_items.id
+    borrower_id INT NOT NULL, -- ID do usuário que pegou emprestado | FK para users.id
     loan_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Data do empréstimo
     due_date TIMESTAMP NOT NULL, -- Data de devolução prevista
     return_date TIMESTAMP, -- Data da devolução efetiva
@@ -1069,7 +1086,7 @@ CREATE TABLE IF NOT EXISTS library_loans (
 -- Gerencia todas as notificações do sistema para usuários
 CREATE TABLE IF NOT EXISTS notifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL, -- ID do usuário que receberá a notificação
+    user_id INT NOT NULL, -- ID do usuário que receberá a notificação | FK para users.id
     title VARCHAR(255) NOT NULL, -- Título da notificação
     message TEXT NOT NULL, -- Conteúdo da notificação
     notification_type ENUM(

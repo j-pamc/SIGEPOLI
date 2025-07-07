@@ -96,97 +96,95 @@ sigepoli/
 └── relatorio_1_pagina
 ```
 
-### 1. ÁREA ACADÉMICA 📚
+### 1. ÁREA ACADÊMICA 📚
 
 #### **Estrutura de Cursos e Disciplinas**
-- [x] `courses` - Cadastro de cursos oferecidos (RF05)
-- [x] `subjects` - Catálogo de disciplinas (RF05)
-- [x] `course_subjects` - Relação curso-disciplina com pré-requisitos (RF05)
-- [x] `course_availability` - Vagas disponíveis por ano letivo (RF06 - controle de vagas)
+- [x] `courses` — Cadastro de cursos oferecidos
+- [x] `subjects` — Catálogo de disciplinas
+- [x] `course_subjects` — Relação curso-disciplina com pré-requisitos
+- [x] `course_availability` — Vagas disponíveis por ano letivo
 
 #### **Gestão de Turmas e Horários**
-- [x] `classes` - Turmas por disciplina (RF05)
-- [x] `time_slots` - Períodos de aula (RF05)
-- [x] `class_schedules` - Horários das turmas (RF05)
-- [x] `rooms` - Salas de aula (RF10 - relatórios de utilização)
-- [x] `resources` - Recursos disponíveis
-- [x] `room_resources` - Recursos por sala
-- [x] `room_bookings` - Reservas especiais de salas para atividades não regulares
+- [x] `classes` — Turmas por curso
+- [x] `time_slots` — Períodos de aula
+- [x] `class_schedules` — Horários das turmas
+- [x] `rooms` — Salas de aula
+- [x] `resources` — Recursos disponíveis
+- [x] `room_resources` — Recursos por sala
+- [x] `room_bookings` — Reservas especiais de salas
 
 #### **Gestão de Alunos**
-- [x] `students` - Dados dos alunos
-- [x] `student_enrollments` - Matrícula em cursos (RF06)
-- [x] `class_enrollments` - Matrículas em turmas (RF06)
-  - **VALIDAÇÃO**: Controle de vaga (RN02) via `course_availability`
+- [x] `students` — Dados dos alunos
+- [x] `student_enrollments` — Matrícula em cursos
+- [x] `class_enrollments` — Matrículas em disciplinas em dadas turmas
 
 #### **Gestão de Professores**
-- [x] `teachers` - Dados dos docentes (RF03)
-- [x] `teacher_specializations` - Especializações dos professores
-- [x] `teacher_availability` - Carga horária (RN06 - coordenador aprova)
+- [x] `teachers` — Dados dos docentes
+- [x] `teacher_specializations` — Especializações dos professores
+- [x] `teacher_availability` — Disponibilidade/carga horária
 
 #### **Sistema de Avaliação**
-- [x] `grades` - Notas dos alunos (RF07)
-  - **VALIDAÇÃO**: Constraint CHECK para notas 0-20 (RN03)
-- [x] `assessment_types` - Tipos de avaliação (RF07)
-- [x] `attendance` - Controlo de presenças
-- [x] `classes_attended` - Aulas ministradas
+- [x] `grades` — Notas dos alunos
+- [x] `assessment_types` — Tipos de avaliação
+- [x] `attendance` — Controle de presenças
+- [x] `classes_attended` — Aulas ministradas
 
 ---
 
 ### 2. ÁREA ADMINISTRATIVA 🏢
 
 #### **Gestão de Pessoal**
-- [x] `users` - Dados centrais de todos os utilizadores
-- [x] `user_roles` - Papéis no sistema
-- [x] `user_role_assignments` - Relacionamento usuário-papel
-- [x] `user_identification` - Documentos de identificação
-- [x] `user_health` - Informações de saúde
-- [x] `departments` - Estrutura departamental (RF01)
-- [x] `department_budgets` - Orçamento anual por departamento (RF01)
-- [x] `staff` - Funcionários administrativos (RF02)
-- [x] `academic_qualifications` - Qualificações dos funcionários (RF03 - cadastrar titulação)
-- [x] `positions` - Cargos disponíveis (Secretário, Tesoureiro, Bibliotecário, etc.)
-- [x] `staff_positions` - Cargos dos funcionários
-- [x] `staff_leaves` - Férias e licenças
-- [x] `evaluation` - Avaliações de desempenho (staff, professores, cursos, serviços)
-- [x] `staff_evaluation` - Avaliações específicas de funcionários
-- [x] `course_evaluation` - Avaliações de cursos pelos alunos
-- [x] `performance` - Resultados das avaliações de desempenho
+- [x] `users` — Dados centrais de todos os utilizadores
+- [x] `user_roles` — Papéis no sistema
+- [x] `user_role_assignments` — Relacionamento usuário-papel
+- [x] `user_identification` — Documentos de identificação
+- [x] `user_health` — Informações de saúde
+- [x] `departments` — Estrutura departamental
+- [x] `department_budgets` — Orçamento anual por departamento
+- [x] `staff` — Funcionários administrativos
+- [x] `academic_qualifications` — Qualificações dos funcionários
+- [x] `positions` — Cargos disponíveis
+- [x] `staff_positions` — Cargos dos funcionários
+- [x] `staff_leaves` — Férias e licenças
+- [x] `evaluation` — Avaliações de desempenho
+- [x] `staff_evaluation` — Avaliações específicas de funcionários
+- [x] `course_evaluation` — Avaliações de cursos pelos alunos
+- [x] `performance` — Resultados das avaliações de desempenho
+- [x] `course_access` — Inscrições de alunos nos cursos
 
 #### **Coordenação de Cursos**
 - [x] `courses.coordinator_user_id` - Coordenadores atribuídos (RF04)
   - **VALIDAÇÃO**: Apenas coordenadores aprovam carga horária (RN06)
 
 #### **Secretaria Académica (crítica para ISPTEC)**
-- [x] `course_access` - Inscrições de alunos nos cursos (RF06)
-- [x] `services` - Serviços que podem ser requisitados (ex: pedido de documento)
-- [x] `service_types` - Categorias de serviços
-- [x] `service_evaluation` - Avaliações de serviços
+- [x] `services` — Serviços prestados pela instituição
+- [x] `service_types` — Categorias de serviços
+- [x] `service_evaluation` — Avaliações de serviços
 
 #### **Tesouraria (crítica para ISPTEC)**
-- [x] `payments` - Pagamentos gerais com roles para tipo
-- [x] `payment_types` - Tipos de pagamento aceites
-- [x] `studant_payments` - Pagamentos de alunos por serviços
-- [x] `company_payments` - Pagamentos a empresas terceirizadas
-- [x] `staff_payments` - Pagamentos a funcionários
-- [x] `fines` - Multas aplicadas a alunos e empresas
+- [x] `payments` — Pagamentos gerais
+- [x] `payment_types` — Tipos de pagamento
+- [x] `studant_payments` — Pagamentos de alunos por serviços
+- [x] `company_payments` — Pagamentos a empresas terceirizadas
+- [x] `staff_payments` — Pagamentos a funcionários
+- [x] `fines` — Multas aplicadas a alunos e empresas
 
 #### **Biblioteca**
-- [x] `library_items` - Catálogo geral (livros, revistas, computador, etc.)
-- [x] `library_loans` - Empréstimos e devoluções
+- [x] `library_items` — Catálogo geral da biblioteca
+- [x] `library_loans` — Empréstimos e devoluções
 
 ---
 
 ### 3. ÁREA OPERACIONAL ⚙️
 
-#### **Gestão de Terceirizados**
-- [x] `companies` - Empresas terceirizadas (RF08)
-- [x] `companies_departments` - Relação empresas-departamentos
-- [x] `companies_contracts` - Contratos com empresas (RF08)
-- [x] `companies_sla` - Acordos de nível de serviço (RF08)
-- [x] `companies_sla_evaluation` - Avaliações dos SLA
-- [x] `companies_warranties` - Garantias oferecidas pelas empresas
-- [x] `companies_sla_definitions` - Definições dos termos dos SLA
+#### **Gestão de Serviços, Pagamentos e Terceirizados**
+- [x] `companies` — Empresas terceirizadas
+- [x] `companies_departments` — Relação empresas-departamentos
+- [x] `companies_contracts` — Contratos com empresas
+- [x] `companies_sla` — Acordos de nível de serviço
+- [x] `companies_sla_evaluation` — Avaliações dos SLA
+- [x] `companies_warranties` — Garantias oferecidas pelas empresas
+- [x] `companies_sla_definitions` — Definições dos termos dos SLA
 
 #### **Monitoramento e Pagamentos**
   - **VALIDAÇÃO**: Verifica garantia válida antes do pagamento (RN04)
@@ -197,7 +195,7 @@ sigepoli/
 ### 4. ÁREAS TRANSVERSAIS 🔄
 
 #### **Auditoria**
-- [x] `audit_logs` - Logs de auditoria (RF11)
+- [x] `audit_logs` — Logs de auditoria
 
 #### **Relatórios** (Consultas, não tabelas)
 - **RF10**: Relatórios de carga horária, salas e custos
@@ -205,6 +203,9 @@ sigepoli/
   - Grade horária por curso
   - Carga horária por professor
   - Resumo de custos de serviços por mês
+
+#### **Notificações**
+- [x] `notifications` — Notificações do sistema
 
 ---
 

@@ -325,7 +325,7 @@ CREATE TABLE IF NOT EXISTS teacher_availability (
 CREATE TABLE IF NOT EXISTS grades (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL, -- ID do aluno | FK para students.user_id
-    class_id INT NOT NULL, -- ID da turma | FK para classes.id
+    class_schedules_id INT NOT NULL, -- ID da materia  que se inscreveu na turma | FK para class_schedules.id 
     assessment_type_id INT NOT NULL, -- ID do tipo de avaliação | FK para assessment_types.id
     score DECIMAL(5, 2) NOT NULL, -- Nota obtida (0-100)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -673,7 +673,7 @@ CREATE TABLE IF NOT EXISTS evaluation (
         'in_progress', -- Avaliação em progresso
         'reviewed',
         'finalized', -- Avaliação finalizada
-        'disputed', -- Avaliação contestada
+        'disputed' -- Avaliação contestada
     ) DEFAULT 'started', -- Status da avaliação
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

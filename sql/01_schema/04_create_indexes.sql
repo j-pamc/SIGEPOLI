@@ -67,6 +67,14 @@ CREATE INDEX idx_attendance_classes_attended_id ON attendance(classes_attended_i
 CREATE INDEX idx_classes_attended_class_id ON classes_attended(class_id); -- FK: turma
 CREATE INDEX idx_classes_attended_time_slot_id ON classes_attended(time_slot_id); -- FK: horário
 
+-- Índices para course_access
+CREATE INDEX idx_course_access_user_id ON course_access(user_id); -- FK: usuário
+CREATE INDEX idx_course_access_course_availability_id ON course_access(course_availability_id); -- FK: course_availability
+
+-- Índices para service_evaluation
+CREATE INDEX idx_service_evaluation_evaluation_id ON service_evaluation(evaluation_id); -- FK: avaliação
+CREATE INDEX idx_service_evaluation_service_id ON service_evaluation(service_id); -- FK: serviço
+
 -- ===================== ADMINISTRATIVO =====================
 -- Índices para tabelas administrativas: papéis, departamentos, funcionários, etc.
 

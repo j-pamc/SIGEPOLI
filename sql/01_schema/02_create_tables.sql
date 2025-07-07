@@ -481,7 +481,7 @@ CREATE TABLE IF NOT EXISTS departments (
     name VARCHAR(100) NOT NULL, -- Nome completo do departamento | unique
     acronym VARCHAR(10) NOT NULL, -- Sigla do departamento | unique
     description TEXT, -- Descrição das atividades do departamento
-    head_staff_id INT NOT NULL, -- ID do chefe do departamento (referencia staff.id)
+    head_staff_id INT, -- ID do chefe do departamento (referencia staff.id)
     status ENUM(
         'active',
         'inactive',

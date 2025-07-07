@@ -82,6 +82,10 @@ ALTER TABLE room_resources
 ADD CONSTRAINT fk_room_resources_resource 
 FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE;
 
+ALTER TABLE resources 
+ADD CONSTRAINT fk_resources_department 
+FOREIGN KEY (responsible_department_id) REFERENCES departments(id) ON DELETE RESTRICT;
+
 -- RESERVAS DE SALAS
 ALTER TABLE room_bookings 
 ADD CONSTRAINT fk_room_bookings_room 
@@ -174,6 +178,18 @@ FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE;
 ALTER TABLE classes_attended 
 ADD CONSTRAINT fk_classes_attended_time_slot 
 FOREIGN KEY (time_slot_id) REFERENCES time_slots(id) ON DELETE RESTRICT;
+
+-- ==========================================================================================
+-- CONSTRAINTS PARA PERFORMANCE
+-- ==========================================================================================
+
+ALTER TABLE performance 
+ADD CONSTRAINT fk_performance_evaluation 
+FOREIGN KEY (evaluation_id) REFERENCES evaluation(id) ON DELETE CASCADE;
+
+ALTER TABLE performance 
+ADD CONSTRAINT fk_performance_evaluator 
+FOREIGN KEY (evaluator_id) REFERENCES users(id) ON DELETE RESTRICT;
 
 -- ==========================================================================================
 -- CONSTRAINTS ADMINISTRATIVAS
@@ -530,4 +546,28 @@ ALTER TABLE companies ADD CONSTRAINT unique_company_nif UNIQUE (nif);
 -- Itens da biblioteca
 ALTER TABLE library_items ADD CONSTRAINT unique_library_item_barcode UNIQUE (barcode);
 -- Pagamentos
-ALTER TABLE payments ADD CONSTRAINT unique_payment_reference_number UNIQUE (reference_number); 
+ALTER TABLE payments ADD CONSTRAINT unique_payment_reference_number UNIQUE (reference_number);
+
+ALTER TABLE course_access
+ADD CONSTRAINT fk_course_access_user
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE course_access
+ADD CONSTRAINT fk_course_access_course_availability
+FOREIGN KEY (course_availability_id) REFERENCES course_availability(id) ON DELETE CASCADE;
+
+ALTER TABLE service_evaluation
+ADD CONSTRAINT fk_service_evaluation_evaluation
+FOREIGN KEY (evaluation_id) REFERENCES evaluation(id) ON DELETE CASCADE;
+
+ALTER TABLE service_evaluation
+ADD CONSTRAINT fk_service_evaluation_service
+FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE;
+
+ALTER TABLE services
+ADD CONSTRAINT fk_services_service_types
+FOREIGN KEY (service_types_id) REFERENCES service_types(id) ON DELETE RESTRICT;
+
+ALTER TABLE services
+ADD CONSTRAINT fk_services_department
+FOREIGN KEY (departament_id) REFERENCES departments(id) ON DELETE RESTRICT; 

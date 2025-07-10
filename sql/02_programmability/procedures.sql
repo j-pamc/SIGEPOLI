@@ -1,152 +1,140 @@
--- ==============================================================
--- PROCEDURES
--- ==============================================================
+-- Procedures SQL para o SIGEPOLI
 
+-- ==========================================================================================
+-- Procedure: EnrollStudent
+-- Descrição: Matricula um aluno em um curso e em uma turma específica.
+-- Parâmetros:
+--   p_user_id INT: O ID do usuário que será matriculado (deve ser um aluno).
+--   p_course_id INT: O ID do curso no qual o aluno será matriculado.
+--   p_class_schedules_id INT: O ID do agendamento da turma/disciplina na qual o aluno será matriculado.
+-- ==========================================================================================
 DELIMITER //
-
--- Procedure para Matricular Alunos em Turmas (RF06)
--- Verifica a disponibilidade de vagas e o status de pagamento da propina antes de matricular.
-CREATE PROCEDURE EnrollStudentInClass (
-    IN p_student_id INT,
+CREATE PROCEDURE EnrollStudent(
+    IN p_user_id INT,
+    IN p_course_id INT,
     IN p_class_schedules_id INT
 )
 BEGIN
-    DECLARE v_course_id INT;
-    DECLARE v_student_enrolled_course BOOLEAN DEFAULT FALSE;
-    DECLARE v_has_paid_fee BOOLEAN DEFAULT FALSE;
-    DECLARE v_class_capacity INT;
-    DECLARE v_current_enrollments INT;
-    DECLARE v_enrollment_status VARCHAR(20);
+    DECLARE student_id_val INT;
 
-    -- Obter o ID do curso da turma
-    SELECT c.course_id INTO v_course_id
-    FROM class_schedules cs
-    JOIN classes c ON cs.class_id = c.id
-    WHERE cs.id = p_class_schedules_id;
+    -- Verifica se o ID do usuário fornecido corresponde a um aluno existente na tabela `students`.
+    SELECT user_id INTO student_id_val FROM students WHERE user_id = p_user_id;
 
-    -- Verificar se o aluno já está matriculado no curso associado à turma
-    SELECT TRUE INTO v_student_enrolled_course
-    FROM student_enrollments
-    WHERE student_id = p_student_id AND course_id = v_course_id AND status = 'active'
-    LIMIT 1;
-
-    -- Verificar se a propina está paga (RN02)
-    -- Esta verificação é simplificada. Em um sistema real, envolveria a tabela student_fees e payments.
-    SELECT TRUE INTO v_has_paid_fee
-    FROM student_fees sf
-    JOIN payments p ON sf.payment_id = p.id
-    WHERE sf.student_id = p_student_id
-      AND sf.course_fee_id IN (SELECT id FROM course_fees WHERE course_id = v_course_id)
-      AND sf.status = 'paid'
-    LIMIT 1;
-
-    -- Obter a capacidade da sala e o número atual de matrículas na turma
-    SELECT r.capacity, COUNT(ce.id)
-    INTO v_class_capacity, v_current_enrollments
-    FROM class_schedules cs
-    JOIN rooms r ON cs.room_id = r.id
-    LEFT JOIN class_enrollments ce ON cs.id = ce.class_schedules_id
-    WHERE cs.id = p_class_schedules_id
-    GROUP BY r.capacity;
-
-    -- Verificar se há vaga (RN02)
-    IF v_current_enrollments >= v_class_capacity THEN
-        SET v_enrollment_status = 'no_vacancy';
-    ELSEIF NOT v_student_enrolled_course THEN
-        SET v_enrollment_status = 'not_enrolled_in_course';
-    ELSEIF NOT v_has_paid_fee THEN
-        SET v_enrollment_status = 'fee_not_paid';
-    ELSE
-        -- Realizar a matrícula
-        INSERT INTO class_enrollments (student_id, class_schedules_id, enrollment_date, type_of_enrollment, status)
-        VALUES (p_student_id, p_class_schedules_id, CURDATE(), 'regular', 'active');
-        SET v_enrollment_status = 'success';
+    -- Se o usuário não for encontrado como aluno, sinaliza um erro.
+    IF student_id_val IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Erro: O usuário não está registrado como aluno.';
     END IF;
 
-    SELECT v_enrollment_status AS enrollment_status;
-END //
+    -- Insere um novo registro na tabela `student_enrollments` para matricular o aluno no curso.
+    INSERT INTO student_enrollments (student_id, course_id, enrollment_date, status, conclusion_date)
+    VALUES (student_id_val, p_course_id, CURDATE(), 'active', CURDATE());
 
+    -- Insere um novo registro na tabela `class_enrollments` para matricular o aluno na turma/disciplina.
+    INSERT INTO class_enrollments (student_id, class_schedules_id, enrollment_date, type_of_enrollment, status)
+    VALUES (student_id_val, p_class_schedules_id, CURDATE(), 'regular', 'active');
+
+    -- Retorna uma mensagem de sucesso.
+    SELECT 'Aluno matriculado com sucesso.' AS message;
+END //
 DELIMITER ;
 
-
-
+-- ==========================================================================================
+-- Procedure: AllocateResourceToRoom
+-- Descrição: Aloca um recurso a uma sala ou atualiza o status de um recurso já alocado.
+-- Parâmetros:
+--   p_room_id INT: O ID da sala.
+--   p_resource_id INT: O ID do recurso.
+--   p_status_resources ENUM: O novo status do recurso na sala (e.g., 'available', 'in_use', 'maintenance').
+-- ==========================================================================================
 DELIMITER //
-
--- Procedure para Alocar Professor em Turma (RF05)
--- Garante que um professor não tenha horários sobrepostos (RN01).
-CREATE PROCEDURE AllocateTeacherToClass (
-    IN p_class_schedules_id INT,
-    IN p_teacher_id INT
+CREATE PROCEDURE AllocateResourceToRoom(
+    IN p_room_id INT,
+    IN p_resource_id INT,
+    IN p_status_resources ENUM('available', 'unavailable', 'damaged', 'maintenance', 'lost')
 )
 BEGIN
-    DECLARE v_time_slot_ids JSON;
-    DECLARE v_overlap_exists BOOLEAN DEFAULT FALSE;
-
-    -- Obter os time_slot_ids da class_schedules que será alocada
-    SELECT time_slot_ids INTO v_time_slot_ids
-    FROM class_schedules
-    WHERE id = p_class_schedules_id;
-
-    -- Verificar sobreposição de horários para o professor (RN01)
-    -- Percorrer os time_slot_ids da nova alocação e comparar com os existentes para o professor
-    SELECT EXISTS (
-        SELECT 1
-        FROM class_schedules cs_existing
-        WHERE cs_existing.teacher_id = p_teacher_id
-          AND cs_existing.id != p_class_schedules_id -- Excluir a própria entrada se for uma atualização
-          AND JSON_OVERLAPS(cs_existing.time_slot_ids, v_time_slot_ids)
-    ) INTO v_overlap_exists;
-
-    IF v_overlap_exists THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Erro: O professor já possui um horário sobreposto.';
-    ELSE
-        -- Atualizar o professor na class_schedules
-        UPDATE class_schedules
-        SET teacher_id = p_teacher_id
-        WHERE id = p_class_schedules_id;
+    -- Verifica se a sala existe.
+    IF NOT EXISTS(SELECT 1 FROM rooms WHERE id = p_room_id) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Erro: Sala não encontrada.';
     END IF;
 
-END //
+    -- Verifica se o recurso existe.
+    IF NOT EXISTS(SELECT 1 FROM resources WHERE id = p_resource_id) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Erro: Recurso não encontrado.';
+    END IF;
 
+    -- Insere um novo registro de alocação ou atualiza o status de um recurso existente na sala.
+    INSERT INTO room_resources (room_id, resource_id, status_resources)
+    VALUES (p_room_id, p_resource_id, p_status_resources)
+    ON DUPLICATE KEY UPDATE status_resources = p_status_resources;
+
+    -- Retorna uma mensagem de sucesso.
+    SELECT 'Recurso alocado/atualizado com sucesso.' AS message;
+END //
 DELIMITER ;
 
-
-
-
+-- ==========================================================================================
+-- Procedure: ProcessPayment
+-- Descrição: Processa um pagamento, registrando-o na tabela principal `payments` e nas
+--            tabelas específicas de pagamento (aluno, empresa, funcionário).
+-- Parâmetros:
+--   p_amount DECIMAL(10, 2): O valor do pagamento.
+--   p_payment_method_id INT: O ID do método de pagamento.
+--   p_reference_number VARCHAR(50): O número de referência do pagamento.
+--   p_status ENUM: O status do pagamento (e.g., 'pending', 'completed', 'failed').
+--   p_student_id INT: (Opcional) O ID do aluno, se for um pagamento de aluno.
+--   p_service_id INT: (Opcional) O ID do serviço, se for um pagamento de aluno.
+--   p_company_id INT: (Opcional) O ID da empresa, se for um pagamento de empresa.
+--   p_department_budgets_id INT: (Opcional) O ID do orçamento do departamento, se for um pagamento de empresa.
+--   p_approved_by_staff INT: (Opcional) O ID do funcionário que aprovou, se for um pagamento de empresa.
+--   p_staff_id INT: (Opcional) O ID do funcionário, se for um pagamento de funcionário.
+--   p_type_of_staff_payment ENUM: (Opcional) O tipo de pagamento de funcionário (e.g., 'salary', 'bonus').
+-- ==========================================================================================
 DELIMITER //
-
--- Procedure para Processar Pagamento de Propina (RF09)
--- Registra um pagamento e atualiza o status da propina do estudante.
-CREATE PROCEDURE ProcessStudentPayment (
-    IN p_student_id INT,
-    IN p_course_fee_id INT,
+CREATE PROCEDURE ProcessPayment(
     IN p_amount DECIMAL(10, 2),
-    IN p_payment_method_id INT
+    IN p_payment_method_id INT,
+    IN p_reference_number VARCHAR(50),
+    IN p_status ENUM('pending', 'completed', 'failed', 'refunded'),
+    IN p_student_id INT DEFAULT NULL,
+    IN p_service_id INT DEFAULT NULL,
+    IN p_company_id INT DEFAULT NULL,
+    IN p_department_budgets_id INT DEFAULT NULL,
+    IN p_approved_by_staff INT DEFAULT NULL,
+    IN p_staff_id INT DEFAULT NULL,
+    IN p_type_of_staff_payment ENUM('salary', 'bonus', 'reimbursement', 'commission', 'other') DEFAULT NULL
 )
 BEGIN
-    DECLARE v_payment_id INT;
-    DECLARE v_current_status ENUM("pending", "paid", "late", "waived");
+    DECLARE payment_id_val INT;
 
-    -- Inserir o pagamento na tabela payments
-    INSERT INTO payments (amount, payment_method_id, status)
-    VALUES (p_amount, p_payment_method_id, 'completed');
+    -- Insere o registro principal do pagamento na tabela `payments`.
+    INSERT INTO payments (amount, payment_method_id, reference_number, status)
+    VALUES (p_amount, p_payment_method_id, p_reference_number, p_status);
 
-    SET v_payment_id = LAST_INSERT_ID();
+    -- Obtém o ID do pagamento recém-inserido.
+    SET payment_id_val = LAST_INSERT_ID();
 
-    -- Atualizar o status na tabela student_fees
-    UPDATE student_fees
-    SET
-        payment_id = v_payment_id,
-        status = 'paid'
-    WHERE
-        student_id = p_student_id AND course_fee_id = p_course_fee_id AND status IN ('pending', 'late');
+    -- Associa o pagamento ao tipo específico (aluno, empresa ou funcionário) com base nos parâmetros fornecidos.
+    IF p_student_id IS NOT NULL AND p_service_id IS NOT NULL THEN
+        -- Se for um pagamento de aluno por serviço, insere na tabela `student_payments`.
+        INSERT INTO student_payments (payment_id, service_id, student_id)
+        VALUES (payment_id_val, p_service_id, p_student_id);
+    ELSEIF p_company_id IS NOT NULL AND p_department_budgets_id IS NOT NULL AND p_approved_by_staff IS NOT NULL THEN
+        -- Se for um pagamento de empresa, insere na tabela `company_payments`.
+        INSERT INTO company_payments (payment_id, company_id, department_budgets_id, approved_by_staff)
+        VALUES (payment_id_val, p_company_id, p_department_budgets_id, p_approved_by_staff);
+    ELSEIF p_staff_id IS NOT NULL AND p_type_of_staff_payment IS NOT NULL THEN
+        -- Se for um pagamento de funcionário, insere na tabela `staff_payments`.
+        INSERT INTO staff_payments (payment_id, staff_id, type_of_payment)
+        VALUES (payment_id_val, p_staff_id, p_type_of_staff_payment);
+    END IF;
 
-    -- Se não houver registro em student_fees para atualizar, pode-se inserir um novo
-    -- ou tratar como erro, dependendo da regra de negócio.
-    -- Por simplicidade, aqui assumimos que o registro já existe e está pendente/atrasado.
-
+    -- Retorna uma mensagem de sucesso e o ID do novo pagamento.
+    SELECT 'Pagamento processado com sucesso.' AS message, payment_id_val AS new_payment_id;
 END //
-
 DELIMITER ;
 
 

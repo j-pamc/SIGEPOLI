@@ -654,5 +654,3 @@ Este modelo lógico representa a estrutura do banco de dados SIGEPOLI, detalhand
 *   `staff_id` (INT, NN, FK to `users.id`)
 *   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
 *   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
-
-

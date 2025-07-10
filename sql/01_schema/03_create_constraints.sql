@@ -303,16 +303,16 @@ ADD CONSTRAINT fk_payments_method
 FOREIGN KEY (payment_method_id) REFERENCES payment_types(id) ON DELETE RESTRICT;
 
 -- PAGAMENTOS DE ALUNOS
-ALTER TABLE studant_payments 
-ADD CONSTRAINT fk_studant_payments_payment 
+ALTER TABLE student_payments 
+ADD CONSTRAINT fk_student_payments_payment 
 FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE CASCADE;
 
-ALTER TABLE studant_payments 
-ADD CONSTRAINT fk_studant_payments_service 
+ALTER TABLE student_payments 
+ADD CONSTRAINT fk_student_payments_service 
 FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE RESTRICT;
 
-ALTER TABLE studant_payments 
-ADD CONSTRAINT fk_studant_payments_student 
+ALTER TABLE student_payments 
+ADD CONSTRAINT fk_student_payments_student 
 FOREIGN KEY (student_id) REFERENCES students(user_id) ON DELETE CASCADE;
 
 -- PAGAMENTOS A EMPRESAS
@@ -560,22 +560,22 @@ FOREIGN KEY (service_types_id) REFERENCES service_types(id) ON DELETE RESTRICT;
 
 ALTER TABLE services
 ADD CONSTRAINT fk_services_department
-FOREIGN KEY (departament_id) REFERENCES departments(id) ON DELETE RESTRICT; 
+FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE RESTRICT; 
 
 -- CONSTRAINTS PARA course_fees
 ALTER TABLE course_fees
 ADD CONSTRAINT fk_course_fees_course
 FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE RESTRICT;
 
--- CONSTRAINTS PARA studant_fees
-ALTER TABLE studant_fees
-ADD CONSTRAINT fk_studant_fees_student
+-- CONSTRAINTS PARA student_fees
+ALTER TABLE student_fees
+ADD CONSTRAINT fk_student_fees_student
 FOREIGN KEY (student_id) REFERENCES students(user_id) ON DELETE RESTRICT;
 
-ALTER TABLE studant_fees
-ADD CONSTRAINT fk_studant_fees_course_fee
+ALTER TABLE student_fees
+ADD CONSTRAINT fk_student_fees_course_fee
 FOREIGN KEY (course_fee_id) REFERENCES course_fees(id) ON DELETE SET NULL;
 
-ALTER TABLE studant_fees
-ADD CONSTRAINT fk_studant_fees_payment
+ALTER TABLE student_fees
+ADD CONSTRAINT fk_student_fees_payment
 FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE RESTRICT;

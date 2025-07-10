@@ -78,11 +78,11 @@ CREATE INDEX idx_attendance_classes_attended_id ON attendance (classes_attended_
 CREATE INDEX idx_course_fees_course_id ON course_fees (course_id);
 CREATE INDEX idx_course_fees_type_payment ON course_fees (type_payment);
 
--- Tabela: studant_fees
-CREATE INDEX idx_studant_fees_student_id ON studant_fees (student_id);
-CREATE INDEX idx_studant_fees_course_fee_id ON studant_fees (course_fee_id);
-CREATE INDEX idx_studant_fees_payment_id ON studant_fees (payment_id);
-CREATE INDEX idx_studant_fees_status ON studant_fees (status);
+-- Tabela: student_fees
+CREATE INDEX idx_student_fees_student_id ON student_fees (student_id);
+CREATE INDEX idx_student_fees_course_fee_id ON student_fees (course_fee_id);
+CREATE INDEX idx_student_fees_payment_id ON student_fees (payment_id);
+CREATE INDEX idx_student_fees_status ON student_fees (status);
 
 -- ==========================================================================================
 -- ÍNDICES FINANCEIROS
@@ -93,10 +93,10 @@ CREATE INDEX idx_payments_payment_method_id ON payments (payment_method_id);
 CREATE INDEX idx_payments_reference_number ON payments (reference_number);
 CREATE INDEX idx_payments_status ON payments (status);
 
--- Tabela: studant_payments
-CREATE INDEX idx_studant_payments_payment_id ON studant_payments (payment_id);
-CREATE INDEX idx_studant_payments_student_id ON studant_payments (student_id);
-CREATE INDEX idx_studant_payments_service_id ON studant_payments (service_id);
+-- Tabela: student_payments
+CREATE INDEX idx_student_payments_payment_id ON student_payments (payment_id);
+CREATE INDEX idx_student_payments_student_id ON student_payments (student_id);
+CREATE INDEX idx_student_payments_service_id ON student_payments (service_id);
 
 -- Tabela: company_payments
 CREATE INDEX idx_company_payments_payment_id ON company_payments (payment_id);
@@ -215,7 +215,7 @@ CREATE INDEX idx_assessment_types_code ON assessment_types (code);
 
 -- Tabela: services
 CREATE INDEX idx_services_service_types_id ON services (service_types_id);
-CREATE INDEX idx_services_departament_id ON services (departament_id);
+CREATE INDEX idx_services_department_id ON services (department_id);
 
 -- Tabela: service_evaluation
 CREATE INDEX idx_service_evaluation_evaluation_id ON service_evaluation (evaluation_id);
@@ -358,8 +358,8 @@ CREATE INDEX idx_staff_payments_payment_date ON staff_payments (payment_date);
 -- Tabela: companies_departments
 CREATE INDEX idx_companies_departments_assignment_date ON companies_departments (assignment_date);
 
--- Tabela: studant_fees
-CREATE INDEX idx_studant_fees_reference_month ON studant_fees (reference_month);
+-- Tabela: student_fees
+CREATE INDEX idx_student_fees_reference_month ON student_fees (reference_month);
 
 -- Tabela: course_fees
 CREATE INDEX idx_course_fees_start_at ON course_fees (start_at);

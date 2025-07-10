@@ -225,12 +225,14 @@ Este modelo conceitual representa as entidades principais e seus relacionamentos
 - **Aluno** `matricula-se em` **Matrícula em Turma** (1:N)
 - **Aluno** `recebe` **Nota** (1:N)
 - **Aluno** `tem` **Frequência** (1:N)
-- **Aluno** `realiza` **Pagamento de Aluno** (1:N)
+- **Aluno** `realiza` **Pagamento de Propina** (1:N)
+- **Aluno** `realiza` **Solicitação de Serviço** (1:N)
+- **Propina de Aluno** `gera` **Pagamento de Aluno** (1:1)
 
 - **Professor** `possui` **Especialização do Professor** (1:N)
 - **Professor** `possui` **Disponibilidade do Professor** (1:N)
 - **Professor** `ministra` **Horário da Turma** (1:N)
-- **Horario da Turma** confirmado **Coordenador do curso** (N:1)
+- **Horário da Turma** `é confirmado por` **Coordenador do Curso** (N:1)
 - **Professor** `é avaliado em` **Avaliação de Funcionário** (1:N)
 
 - **Sala** `possui` **Recurso da Sala** (1:N)
@@ -239,7 +241,6 @@ Este modelo conceitual representa as entidades principais e seus relacionamentos
 
 - **Empresa Terceirizada** `tem` **Empresa-Departamento** (N:M)
 - **Empresa Terceirizada** `tem` **Contrato** (1:N)
-- **Empresa Terceirizada** `tem` **Garantia da Empresa** (1:N)
 - **Empresa Terceirizada** `tem` **SLA** (1:N)
 - **Empresa Terceirizada** `recebe` **Pagamento de Empresa** (1:N)
 - **Empresa Terceirizada** `pode ter` **Multa** (1:N)
@@ -250,7 +251,9 @@ Este modelo conceitual representa as entidades principais e seus relacionamentos
 - **SLA** `tem` **Avaliação de SLA** (1:N)
 
 - **Avaliação de SLA** `gera` **Multa** (0:N)
-- **Pagamento** `é de` **Pagamento de Aluno/Funcionário/Empresa** (1:1:1)
+- **Pagamento de Aluno** `é efetuado via` **Pagamento** (N:1)
+- **Pagamento de Funcionário** `é efetuado via` **Pagamento** (N:1)
+- **Pagamento de Empresa** `é efetuado via` **Pagamento** (N:1)
 - **Pagamento** `tem` **Tipo de Pagamento** (N:1)
 - **Serviço** `tem` **Tipo de Serviço** (N:1)
 - **Serviço** `recebe` **Pagamento** (1:N)
@@ -261,7 +264,107 @@ Este modelo conceitual representa as entidades principais e seus relacionamentos
 - **Avaliação** `gera` **Performance** (1:N)
 - **Acesso ao Curso** `é de` **Aluno** (N:1)
 
+## Fluxos de processos adicionais
 
+### Fluxo de processos de Funcionário Administrativo
+1. Registro de dados pessoais em `users`.
+2. Vinculação a `staff` com departamento.
+3. Atribuição de cargo em `staff_positions`.
+4. Submissão de férias/licenças em `staff_leaves`.
+5. Recebimento de pagamentos em `staff_payments` via `payments`.
+6. Participação em avaliações internas (`staff_evaluation`).
+
+### Fluxo de processos de Chefe de Departamento
+1. Atribuição do papel via `user_role_assignments` (role "head_department").
+2. Gestão dos dados do departamento em `departments` e orçamento em `department_budgets`.
+3. Aprovação de solicitações de recursos (`room_bookings`, `resources`).
+4. Aprovação de propostas de contratação de empresas (`companies_contracts`).
+5. Aprovação de pagamentos departamentais (`company_payments`).
+
+### Fluxo de processos de Coordenador de Curso
+1. Atribuição do papel via `user_role_assignments` (role "coordinator").
+2. Definição/atualização de dados do curso em `courses` (campo `coordinator_staff_id`).
+3. Aprovação da disponibilidade de professores em `teacher_availability` (RN06).
+4. Aprovação de horários de turma em `class_schedules`.
+5. Acompanhamento de desempenho de cursos via `course_evaluation`.
+
+### Fluxo de processos de Professor
+1. Cadastro em `users` → vínculo em `staff` → vínculo em `teachers`.
+2. Definição de especializações em `teacher_specializations`.
+3. Submissão de disponibilidade semanal em `teacher_availability`.
+4. Lecionar aulas conforme `class_schedules` (presença em `classes_attended`).
+5. Lançamento de notas em `grades` e controle de frequência em `attendance`.
+6. Participação em avaliações de desempenho (`staff_evaluation`).
+
+### Fluxo de Pagamentos
+1. Geração de transação base em `payments`.
+2. Classificação pelo tipo (`payment_types`).
+3. Associação específica:
+   * `student_payments` (propinas e serviços do aluno)
+   * `company_payments` (contratos e SLA)
+   * `staff_payments` (salários, bônus, etc.)
+4. Validação de status (`paid`, `pending`, `failed`).
+5. Registro em `audit_logs` para rastreabilidade.
+
+### Fluxo de Serviços
+1. Criação do serviço em `services` com `service_types`.
+2. Solicitação pelo usuário (`student_payments` ou outra tabela de requisição de serviço).
+3. Pagamento via fluxo de pagamentos.
+4. Execução e posterior avaliação em `service_evaluation`.
+
+### Fluxo de Companhias Terceirizadas
+1. Cadastro em `companies`.
+2. Associação a departamentos via `companies_departments`.
+3. Criação de contrato em `companies_contracts` com definição de garantia e `companies_sla`.
+4. Avaliação periódica em `companies_sla_evaluation` (RN05) — possível geração de `fines`.
+5. Processamento de pagamento em `payments` → `company_payments`.
+
+
+## Fluxo de processos
+
+### Fluxo de processos de administração
+
+1. o funcionario e contratado
+2. recebe posicao e roles de permisoes na app
+3. faz avalicao de curso
+4. faz avaliacao de sla (se for dada a posicao)
+5. faz avalicao de funcionario se for chefe de departamento ou coordenador de curso
+
+### Fluxo de processos aluno 
+
+1. O aluno se increve para um curso
+2. O aluno faz a prova de acesso e recebe uma nota
+3. Se aprovado o aluno se matricula em uma turma
+4. O aluno paga a propina
+5. O aluno faz as aulas (frequencia)
+6. O aluno faz as provas
+7. O aluno faz requesicao de servicos
+8. O aluno faz requesicao de emprestimo de itens da biblioteca
+9. O aluno paga emprestimos e servicos
+10. O aluno paga multas
+11. O aluno faz avaliacao de funcionarios, cursos e servicos
+12. O aluno faz avaliacao de curso
+13. O aluno faz avaliacao de funcionario
+14. O aluno faz avaliacao de servico
+
+### Fluxo de processos funcionario
+
+
+### Fluxo de processos chefe de departamento
+1. Edita informacoes do departamento
+2. 
+
+### Fluxo de processos coordenador de curso
+1. Edita informacoes do curso
+2. 
+
+### Fluxo de professor
+
+### Fluxo de pagamentos
+
+### Fluxo de servicos
+
+### Fluxo de companias 
 
 
 

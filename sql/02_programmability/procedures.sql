@@ -31,9 +31,9 @@ BEGIN
     LIMIT 1;
 
     -- Verificar se a propina está paga (RN02)
-    -- Esta verificação é simplificada. Em um sistema real, envolveria a tabela studant_fees e payments.
+    -- Esta verificação é simplificada. Em um sistema real, envolveria a tabela student_fees e payments.
     SELECT TRUE INTO v_has_paid_fee
-    FROM studant_fees sf
+    FROM student_fees sf
     JOIN payments p ON sf.payment_id = p.id
     WHERE sf.student_id = p_student_id
       AND sf.course_fee_id IN (SELECT id FROM course_fees WHERE course_id = v_course_id)
@@ -133,15 +133,15 @@ BEGIN
 
     SET v_payment_id = LAST_INSERT_ID();
 
-    -- Atualizar o status na tabela studant_fees
-    UPDATE studant_fees
+    -- Atualizar o status na tabela student_fees
+    UPDATE student_fees
     SET
         payment_id = v_payment_id,
         status = 'paid'
     WHERE
         student_id = p_student_id AND course_fee_id = p_course_fee_id AND status IN ('pending', 'late');
 
-    -- Se não houver registro em studant_fees para atualizar, pode-se inserir um novo
+    -- Se não houver registro em student_fees para atualizar, pode-se inserir um novo
     -- ou tratar como erro, dependendo da regra de negócio.
     -- Por simplicidade, aqui assumimos que o registro já existe e está pendente/atrasado.
 

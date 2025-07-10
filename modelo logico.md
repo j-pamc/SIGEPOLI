@@ -206,7 +206,7 @@ Este modelo lógico representa a estrutura do banco de dados SIGEPOLI, detalhand
 *   `description` (TEXT)
 *   `service_types_id` (INT, NN, FK to `service_types.id`)
 *   `value` (DECIMAL(10, 2), NN)
-*   `departament_id` (INT, NN, FK to `departments.id`)
+*   `department_id` (INT, NN, FK to `departments.id`)
 *   `status` (ENUM, NN, DEFAULT 'active')
 *   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
 *   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
@@ -235,7 +235,7 @@ Este modelo lógico representa a estrutura do banco de dados SIGEPOLI, detalhand
 *   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
 *   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
 
-### 22. `studant_payments`
+### 22. `student_payments`
 *   `id` (INT, PK, AUTO_INCREMENT)
 *   `payment_id` (INT, NN, FK to `payments.id`)
 *   `service_id` (INT, NN, FK to `services.id`)
@@ -604,6 +604,54 @@ Este modelo lógico representa a estrutura do banco de dados SIGEPOLI, detalhand
 *   `class_id` (INT, NN, FK to `classes.id`)
 *   `class_date` (DATE, NN)
 *   `time_slot_id` (INT, NN, FK to `time_slots.id`)
+*   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
+*   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
+
+### 57. `course_fees`
+*   `id` (INT, PK, AUTO_INCREMENT)
+*   `course_id` (INT, NN, FK to `courses.id`)
+*   `type_payment` (ENUM, NN, DEFAULT 'monthly_installment')
+*   `day_limit_fines` (INT)
+*   `start_at` (TIMESTAMP)
+*   `end_at` (TIMESTAMP)
+*   `amount` (DECIMAL(10, 2), NN)
+*   `grace_period_days` (INT, DEFAULT 10)
+*   `fine_percentual` (DECIMAL(8, 2), DEFAULT 0.00)
+*   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
+*   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
+
+### 58. `student_fees`
+*   `id` (INT, PK, AUTO_INCREMENT)
+*   `student_id` (INT, NN, FK to `students.user_id`)
+*   `course_fee_id` (INT, FK to `course_fees.id`)
+*   `payment_id` (INT, NN, FK to `payments.id`)
+*   `reference_month` (INT, NN)
+*   `status` (ENUM, NN, DEFAULT 'pending')
+*   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
+*   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
+
+### 59. `student_payments`
+*   `id` (INT, PK, AUTO_INCREMENT)
+*   `payment_id` (INT, NN, FK to `payments.id`)
+*   `service_id` (INT, NN, FK to `services.id`)
+*   `student_id` (INT, NN, FK to `students.user_id`)
+*   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
+*   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
+
+### 60. `company_payments`
+*   `id` (INT, PK, AUTO_INCREMENT)
+*   `payment_id` (INT, NN, FK to `payments.id`)
+*   `company_id` (INT, NN, FK to `companies.id`)
+*   `department_budgets_id` (INT, NN, FK to `department_budgets.id`)
+*   `approved_by_staff` (INT, NN, FK to `users.id`)
+*   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
+*   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
+
+### 61. `staff_payments`
+*   `id` (INT, PK, AUTO_INCREMENT)
+*   `type_of_payment` (ENUM, NN)
+*   `payment_id` (INT, NN, FK to `payments.id`)
+*   `staff_id` (INT, NN, FK to `users.id`)
 *   `created_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP)
 *   `updated_at` (TIMESTAMP, DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)
 

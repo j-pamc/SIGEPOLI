@@ -745,7 +745,7 @@ CREATE TABLE IF NOT EXISTS services (
     description TEXT, -- Descrição do serviço
     service_types_id INT NOT NULL, -- ID do tipo de serviço | FK para service_types.id
     value DECIMAL(10, 2) NOT NULL, -- Valor do serviço
-    departament_id INT NOT NULL, -- ID do departamento responsável pelo serviço | FK para departments.id
+    department_id INT NOT NULL, -- ID do departamento responsável pelo serviço | FK para departments.id
     status ENUM(
         'active', -- Ativo
         'inactive', -- Inativo
@@ -796,7 +796,7 @@ CREATE TABLE IF NOT EXISTS payments (
 
 -- TABELA DE PAGAMENTOS POR SERVIÇO
 -- Registra os pagamentos realizados pelos serviços prestados
-CREATE TABLE IF NOT EXISTS studant_payments (
+CREATE TABLE IF NOT EXISTS student_payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     payment_id INT NOT NULL, -- Referencia payments.id | FK para payments.id
     service_id INT NOT NULL, -- ID do serviço pago (referencia services.id) | FK para services.id
@@ -828,7 +828,7 @@ CREATE TABLE IF NOT EXISTS course_fees (
 -- TABELA DE PAGAMENTOS DE PROPINAS POR ESTUDANTES (student_fees)
 -- Esta tabela registra os pagamentos de propinas (taxas) efetuados por cada estudante.
 -- Vincula o pagamento a um curso específico e ao status de adimplência.
-CREATE TABLE IF NOT EXISTS studant_fees (
+CREATE TABLE IF NOT EXISTS student_fees (
     id INT AUTO_INCREMENT PRIMARY KEY, -- Identificador único do registro de propina do estudante
     student_id INT NOT NULL, -- ID do estudante que realizou o pagamento (FK para students.user_id)
     course_fee_id INT, -- ID da configuração de taxa do curso aplicada a este pagamento (FK para course_fees.id)

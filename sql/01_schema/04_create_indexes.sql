@@ -1,164 +1,366 @@
 -- ==============================================================
--- SIGEPOLI - Índices para Otimização de Consultas (MySQL)
+-- SISTEMA DE GESTÃO ESCOLAR POLITÉCNICA (SIGEPOLI)
+-- Índices para Otimização de Consultas
 -- ==============================================================
--- Este arquivo cria índices para acelerar buscas, joins e garantir performance.
--- Índices são criados para:
--- 1. Chaves estrangeiras (FKs) - sempre necessário para performance e integridade
--- 2. Colunas frequentemente usadas em WHERE, JOIN ou ORDER BY
--- 3. Não criar índices redundantes para campos UNIQUE (MySQL já cria)
---      Como funciona:
---      - Ao definir UNIQUE em uma coluna, o MySQL cria um índice com nome padrão:
---          <nome_da_tabela>_<nome_da_coluna>_UNIQUE
---      - Se o UNIQUE for composto, o nome pode ser:
---          <nome_da_tabela>_<primeira_coluna>_UNIQUE
---      - Você pode acessar esses índices normalmente em EXPLAIN, SHOW INDEX, etc.
--- 4. Não criar índices para campos JSON (não suportado)
+-- 
+-- OBJETIVO: Este arquivo define índices para melhorar o desempenho das consultas
+-- e operações de busca no banco de dados. Os índices são criados com base em:
+-- 1. Colunas frequentemente usadas em cláusulas WHERE, JOIN, ORDER BY e GROUP BY.
+-- 2. Chaves estrangeiras (FOREIGN KEYs) para acelerar operações de JOIN.
+-- 3. Colunas que garantem unicidade e integridade dos dados.
+-- 
+-- IMPORTANTE: Este arquivo deve ser executado APÓS a criação das tabelas e constraints.
 -- ==============================================================
 
--- ===================== ACADÊMICO =====================
--- Índices para tabelas acadêmicas: aceleram buscas por FKs, matrículas, horários, avaliações, etc.
+-- ==========================================================================================
+-- ÍNDICES ACADÉMICOS
+-- ==========================================================================================
 
-CREATE INDEX idx_courses_department_id ON courses(department_id); -- FK: departamento do curso
-CREATE INDEX idx_courses_coordinator_staff_id ON courses(coordinator_staff_id); -- FK: coordenador do curso
+-- Tabela: users
+CREATE INDEX idx_users_email ON users (email);
+CREATE INDEX idx_users_status ON users (status);
 
-CREATE INDEX idx_course_subjects_subject_id ON course_subjects(subject_id); -- FK: disciplina
-CREATE INDEX idx_course_subjects_course_id ON course_subjects(course_id); -- FK: curso
+-- Tabela: students
+CREATE INDEX idx_students_student_number ON students (student_number);
+CREATE INDEX idx_students_user_id ON students (user_id);
 
-CREATE INDEX idx_course_availability_course_id ON course_availability(course_id); -- FK: curso
+-- Tabela: teachers
+CREATE INDEX idx_teachers_staff_id ON teachers (staff_id);
 
-CREATE INDEX idx_classes_course_id ON classes(course_id); -- FK: curso
+-- Tabela: staff
+CREATE INDEX idx_staff_user_id ON staff (user_id);
+CREATE INDEX idx_staff_department_id ON staff (department_id);
+CREATE INDEX idx_staff_staff_number ON staff (staff_number);
 
-CREATE INDEX idx_class_schedules_class_id ON class_schedules(class_id); -- FK: turma
-CREATE INDEX idx_class_schedules_subject_id ON class_schedules(subject_id); -- FK: disciplina
-CREATE INDEX idx_class_schedules_teacher_id ON class_schedules(teacher_id); -- FK: professor
-CREATE INDEX idx_class_schedules_room_id ON class_schedules(room_id); -- FK: sala
-CREATE INDEX idx_class_schedules_approved_by ON class_schedules(approved_by); -- FK: aprovador
+-- Tabela: departments
+CREATE INDEX idx_departments_head_staff_id ON departments (head_staff_id);
+CREATE INDEX idx_departments_name ON departments (name);
+CREATE INDEX idx_departments_acronym ON departments (acronym);
 
-CREATE INDEX idx_room_resources_room_id ON room_resources(room_id); -- FK: sala
-CREATE INDEX idx_room_resources_resource_id ON room_resources(resource_id); -- FK: recurso
+-- Tabela: courses
+CREATE INDEX idx_courses_department_id ON courses (department_id);
+CREATE INDEX idx_courses_coordinator_staff_id ON courses (coordinator_staff_id);
+CREATE INDEX idx_courses_name ON courses (name);
 
-CREATE INDEX idx_room_bookings_room_id ON room_bookings(room_id); -- FK: sala
-CREATE INDEX idx_room_bookings_department_id ON room_bookings(department_id); -- FK: departamento
+-- Tabela: subjects
+CREATE INDEX idx_subjects_code ON subjects (code);
+CREATE INDEX idx_subjects_name ON subjects (name);
 
-CREATE INDEX idx_students_user_id ON students(user_id); -- FK: usuário
+-- Tabela: classes
+CREATE INDEX idx_classes_course_id ON classes (course_id);
+CREATE INDEX idx_classes_code ON classes (code);
 
-CREATE INDEX idx_student_enrollments_student_id ON student_enrollments(student_id); -- FK: aluno
-CREATE INDEX idx_student_enrollments_course_id ON student_enrollments(course_id); -- FK: curso
+-- Tabela: class_schedules
+CREATE INDEX idx_class_schedules_class_id ON class_schedules (class_id);
+CREATE INDEX idx_class_schedules_subject_id ON class_schedules (subject_id);
+CREATE INDEX idx_class_schedules_teacher_id ON class_schedules (teacher_id);
+CREATE INDEX idx_class_schedules_room_id ON class_schedules (room_id);
+CREATE INDEX idx_class_schedules_approved_by ON class_schedules (approved_by);
 
-CREATE INDEX idx_class_enrollments_student_id ON class_enrollments(student_id); -- FK: aluno
-CREATE INDEX idx_class_enrollments_class_schedules_id ON class_enrollments(class_schedules_id); -- FK: disciplina na turma
+-- Tabela: student_enrollments
+CREATE INDEX idx_student_enrollments_student_id ON student_enrollments (student_id);
+CREATE INDEX idx_student_enrollments_course_id ON student_enrollments (course_id);
 
-CREATE INDEX idx_teachers_staff_id ON teachers(staff_id); -- FK: funcionário
+-- Tabela: class_enrollments
+CREATE INDEX idx_class_enrollments_student_id ON class_enrollments (student_id);
+CREATE INDEX idx_class_enrollments_class_schedules_id ON class_enrollments (class_schedules_id);
 
-CREATE INDEX idx_teacher_specializations_teacher_id ON teacher_specializations(teacher_id); -- FK: professor
-CREATE INDEX idx_teacher_specializations_subject_id ON teacher_specializations(subject_id); -- FK: disciplina
-CREATE INDEX idx_teacher_specializations_qualification_id ON teacher_specializations(qualification_id); -- FK: qualificação
+-- Tabela: grades
+CREATE INDEX idx_grades_student_id ON grades (student_id);
+CREATE INDEX idx_grades_class_schedules_id ON grades (class_schedules_id);
+CREATE INDEX idx_grades_assessment_type_id ON grades (assessment_type_id);
 
-CREATE INDEX idx_teacher_availability_teacher_id ON teacher_availability(teacher_id); -- FK: professor
-CREATE INDEX idx_teacher_availability_approved_by ON teacher_availability(approved_by); -- FK: aprovador
+-- Tabela: attendance
+CREATE INDEX idx_attendance_student_id ON attendance (student_id);
+CREATE INDEX idx_attendance_classes_attended_id ON attendance (classes_attended_id);
 
-CREATE INDEX idx_grades_student_id ON grades(student_id); -- FK: aluno
-CREATE INDEX idx_grades_class_schedules_id ON grades(class_schedules_id); -- FK: disciplina na turma
-CREATE INDEX idx_grades_assessment_type_id ON grades(assessment_type_id); -- FK: tipo de avaliação
+-- Tabela: course_fees
+CREATE INDEX idx_course_fees_course_id ON course_fees (course_id);
+CREATE INDEX idx_course_fees_type_payment ON course_fees (type_payment);
 
-CREATE INDEX idx_attendance_student_id ON attendance(student_id); -- FK: aluno
-CREATE INDEX idx_attendance_classes_attended_id ON attendance(classes_attended_id); -- FK: aula
+-- Tabela: studant_fees
+CREATE INDEX idx_studant_fees_student_id ON studant_fees (student_id);
+CREATE INDEX idx_studant_fees_course_fee_id ON studant_fees (course_fee_id);
+CREATE INDEX idx_studant_fees_payment_id ON studant_fees (payment_id);
+CREATE INDEX idx_studant_fees_status ON studant_fees (status);
 
-CREATE INDEX idx_classes_attended_class_id ON classes_attended(class_id); -- FK: turma
-CREATE INDEX idx_classes_attended_time_slot_id ON classes_attended(time_slot_id); -- FK: horário
+-- ==========================================================================================
+-- ÍNDICES FINANCEIROS
+-- ==========================================================================================
 
--- Índices para course_access
-CREATE INDEX idx_course_access_user_id ON course_access(user_id); -- FK: usuário
-CREATE INDEX idx_course_access_course_availability_id ON course_access(course_availability_id); -- FK: course_availability
+-- Tabela: payments
+CREATE INDEX idx_payments_payment_method_id ON payments (payment_method_id);
+CREATE INDEX idx_payments_reference_number ON payments (reference_number);
+CREATE INDEX idx_payments_status ON payments (status);
 
--- Índices para service_evaluation
-CREATE INDEX idx_service_evaluation_evaluation_id ON service_evaluation(evaluation_id); -- FK: avaliação
-CREATE INDEX idx_service_evaluation_service_id ON service_evaluation(service_id); -- FK: serviço
+-- Tabela: studant_payments
+CREATE INDEX idx_studant_payments_payment_id ON studant_payments (payment_id);
+CREATE INDEX idx_studant_payments_student_id ON studant_payments (student_id);
+CREATE INDEX idx_studant_payments_service_id ON studant_payments (service_id);
 
--- ===================== ADMINISTRATIVO =====================
--- Índices para tabelas administrativas: papéis, departamentos, funcionários, etc.
+-- Tabela: company_payments
+CREATE INDEX idx_company_payments_payment_id ON company_payments (payment_id);
+CREATE INDEX idx_company_payments_company_id ON company_payments (company_id);
+CREATE INDEX idx_company_payments_budget_id ON company_payments (department_budgets_id);
+CREATE INDEX idx_company_payments_approved_by ON company_payments (approved_by_staff);
 
-CREATE INDEX idx_user_role_assignments_user_id ON user_role_assignments(user_id); -- FK: usuário
-CREATE INDEX idx_user_role_assignments_role_id ON user_role_assignments(role_id); -- FK: papel
-CREATE INDEX idx_user_role_assignments_assigned_by ON user_role_assignments(assigned_by); -- FK: quem atribuiu
+-- Tabela: staff_payments
+CREATE INDEX idx_staff_payments_payment_id ON staff_payments (payment_id);
+CREATE INDEX idx_staff_payments_staff_id ON staff_payments (staff_id);
 
-CREATE INDEX idx_user_identification_user_id ON user_identification(user_id); -- FK: usuário
-CREATE INDEX idx_user_health_user_id ON user_health(user_id); -- FK: usuário
+-- Tabela: fines
+CREATE INDEX idx_fines_payment_id ON fines (payment_id);
+CREATE INDEX idx_fines_fined ON fines (fined);
 
-CREATE INDEX idx_departments_head_staff_id ON departments(head_staff_id); -- FK: chefe do departamento
+-- ==========================================================================================
+-- ÍNDICES OPERACIONAIS
+-- ==========================================================================================
 
-CREATE INDEX idx_department_budgets_department_id ON department_budgets(department_id); -- FK: departamento
+-- Tabela: companies
+CREATE INDEX idx_companies_nif ON companies (nif);
+CREATE INDEX idx_companies_name ON companies (name);
 
-CREATE INDEX idx_staff_user_id ON staff(user_id); -- FK: usuário
-CREATE INDEX idx_staff_department_id ON staff(department_id); -- FK: departamento
+-- Tabela: companies_contracts
+CREATE INDEX idx_companies_contracts_company_id ON companies_contracts (company_id);
+CREATE INDEX idx_companies_contracts_signer ON companies_contracts (signed_by_staff);
 
-CREATE INDEX idx_academic_qualifications_user_id ON academic_qualifications(user_id); -- FK: usuário
+-- Tabela: companies_sla
+CREATE INDEX idx_companies_sla_company_id ON companies_sla (company_id);
 
-CREATE INDEX idx_staff_positions_user_id ON staff_positions(user_id); -- FK: funcionário
-CREATE INDEX idx_staff_positions_position_id ON staff_positions(position_id); -- FK: cargo
+-- Tabela: companies_sla_evaluation
+CREATE INDEX idx_companies_sla_evaluation_sla_id ON companies_sla_evaluation (sla_id);
+CREATE INDEX idx_companies_sla_evaluation_evaluator_id ON companies_sla_evaluation (evaluator_id);
 
-CREATE INDEX idx_staff_leaves_staff_id ON staff_leaves(staff_id); -- FK: funcionário
-CREATE INDEX idx_staff_leaves_replacement_staff_id ON staff_leaves(replacement_staff_id); -- FK: substituto
+-- ==========================================================================================
+-- ÍNDICES DE AUDITORIA
+-- ==========================================================================================
 
-CREATE INDEX idx_evaluation_iniciator_staff_id ON evaluation(iniciator_staff_id); -- FK: avaliador
+-- Tabela: audit_logs
+CREATE INDEX idx_audit_logs_user_id ON audit_logs (user_id);
+CREATE INDEX idx_audit_logs_table_name ON audit_logs (table_name);
+CREATE INDEX idx_audit_logs_operation_type ON audit_logs (operation_type);
+CREATE INDEX idx_audit_logs_record_id ON audit_logs (record_id);
+CREATE INDEX idx_audit_logs_created_at ON audit_logs (created_at);
 
-CREATE INDEX idx_staff_evaluation_evaluation_id ON staff_evaluation(evaluation_id); -- FK: avaliação
-CREATE INDEX idx_staff_evaluation_staff_id ON staff_evaluation(staff_id); -- FK: funcionário
+-- ==========================================================================================
+-- ÍNDICES DA BIBLIOTECA
+-- ==========================================================================================
 
-CREATE INDEX idx_course_evaluation_evaluation_id ON course_evaluation(evaluation_id); -- FK: avaliação
-CREATE INDEX idx_course_evaluation_course_id ON course_evaluation(course_id); -- FK: curso
+-- Tabela: library_items
+CREATE INDEX idx_library_items_barcode ON library_items (barcode);
+CREATE INDEX idx_library_items_title ON library_items (title);
 
--- ===================== SERVIÇOS E FINANCEIRO =====================
--- Índices para tabelas de serviços, pagamentos, multas, etc.
-CREATE INDEX idx_services_departament_id ON services(departament_id); -- FK: departamento responsável
-CREATE INDEX idx_services_service_types_id ON services(service_types_id); -- FK: tipo de serviço
+-- Tabela: library_loans
+CREATE INDEX idx_library_loans_item_id ON library_loans (library_item_id);
+CREATE INDEX idx_library_loans_borrower_id ON library_loans (borrower_id);
+CREATE INDEX idx_library_loans_loan_date ON library_loans (loan_date);
+CREATE INDEX idx_library_loans_return_date ON library_loans (return_date);
 
-CREATE INDEX idx_payments_payment_method_id ON payments(payment_method_id); -- FK: tipo de pagamento
+-- ==========================================================================================
+-- ÍNDICES DE NOTIFICAÇÕES
+-- ==========================================================================================
 
-CREATE INDEX idx_studant_payments_payment_id ON studant_payments(payment_id); -- FK: pagamento
-CREATE INDEX idx_studant_payments_service_id ON studant_payments(service_id); -- FK: serviço
-CREATE INDEX idx_studant_payments_student_id ON studant_payments(student_id); -- FK: aluno
+-- Tabela: notifications
+CREATE INDEX idx_notifications_user_id ON notifications (user_id);
+CREATE INDEX idx_notifications_status ON notifications (status);
+CREATE INDEX idx_notifications_created_at ON notifications (created_at);
 
-CREATE INDEX idx_company_payments_payment_id ON company_payments(payment_id); -- FK: pagamento
-CREATE INDEX idx_company_payments_company_id ON company_payments(company_id); -- FK: empresa
-CREATE INDEX idx_company_payments_department_budgets_id ON company_payments(department_budgets_id); -- FK: orçamento
-CREATE INDEX idx_company_payments_approved_by_staff ON company_payments(approved_by_staff); -- FK: aprovador
+-- ==========================================================================================
+-- ÍNDICES DE BUSCA E FILTRAGEM COMUNS
+-- ==========================================================================================
 
-CREATE INDEX idx_staff_payments_payment_id ON staff_payments(payment_id); -- FK: pagamento
-CREATE INDEX idx_staff_payments_staff_id ON staff_payments(staff_id); -- FK: funcionário
+-- Tabela: users
+CREATE INDEX idx_users_full_name ON users (first_name, last_name);
 
-CREATE INDEX idx_fines_payment_id ON fines(payment_id); -- FK: pagamento
+-- Tabela: academic_qualifications
+CREATE INDEX idx_academic_qualifications_user_id ON academic_qualifications (user_id);
 
--- ===================== OPERACIONAL =====================
--- Índices para empresas, contratos, SLA, avaliações de SLA
+-- Tabela: user_identification
+CREATE INDEX idx_user_identification_user_id ON user_identification (user_id);
+CREATE INDEX idx_user_identification_document_type ON user_identification (document_type);
+CREATE INDEX idx_user_identification_document_number ON user_identification (document_number);
 
-CREATE INDEX idx_companies_departments_company_id ON companies_departments(company_id); -- FK: empresa
-CREATE INDEX idx_companies_departments_department_id ON companies_departments(department_id); -- FK: departamento
+-- Tabela: user_health
+CREATE INDEX idx_user_health_user_id ON user_health (user_id);
 
-CREATE INDEX idx_companies_contracts_company_id ON companies_contracts(company_id); -- FK: empresa
-CREATE INDEX idx_companies_contracts_signed_by_staff ON companies_contracts(signed_by_staff); -- FK: funcionário
+-- Tabela: user_role_assignments
+CREATE INDEX idx_user_role_assignments_user_id ON user_role_assignments (user_id);
+CREATE INDEX idx_user_role_assignments_role_id ON user_role_assignments (role_id);
 
-CREATE INDEX idx_companies_sla_company_id ON companies_sla(company_id); -- FK: empresa
+-- Tabela: department_budgets
+CREATE INDEX idx_department_budgets_department_id ON department_budgets (department_id);
+CREATE INDEX idx_department_budgets_academic_year ON department_budgets (academic_year);
 
-CREATE INDEX idx_companies_sla_evaluation_company_id ON companies_sla_evaluation(company_id); -- FK: empresa
-CREATE INDEX idx_companies_sla_evaluation_sla_id ON companies_sla_evaluation(sla_id); -- FK: SLA
-CREATE INDEX idx_companies_sla_evaluation_evaluator_id ON companies_sla_evaluation(evaluator_id); -- FK: avaliador
+-- Tabela: staff_positions
+CREATE INDEX idx_staff_positions_user_id ON staff_positions (user_id);
+CREATE INDEX idx_staff_positions_position_id ON staff_positions (position_id);
 
--- ===================== AUDITORIA =====================
--- Índices para logs de auditoria, facilitam rastreabilidade e relatórios
-CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id); -- FK: usuário
-CREATE INDEX idx_audit_logs_table_name ON audit_logs(table_name); -- busca por tabela
-CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at); -- busca por data
+-- Tabela: staff_leaves
+CREATE INDEX idx_staff_leaves_staff_id ON staff_leaves (staff_id);
+CREATE INDEX idx_staff_leaves_replacement_staff_id ON staff_leaves (replacement_staff_id);
 
--- ===================== BIBLIOTECA =====================
--- Índices para empréstimos, itens, usuários
-CREATE INDEX idx_library_loans_library_item_id ON library_loans(library_item_id); -- FK: item
-CREATE INDEX idx_library_loans_borrower_id ON library_loans(borrower_id); -- FK: usuário
+-- Tabela: evaluation
+CREATE INDEX idx_evaluation_initiator_staff_id ON evaluation (iniciator_staff_id);
 
--- ===================== NOTIFICAÇÕES =====================
--- Índices para buscas rápidas por usuário e status
-CREATE INDEX idx_notifications_user_id ON notifications(user_id); -- FK: usuário
-CREATE INDEX idx_notifications_status ON notifications(status); -- busca por status
+-- Tabela: staff_evaluation
+CREATE INDEX idx_staff_evaluation_evaluation_id ON staff_evaluation (evaluation_id);
+CREATE INDEX idx_staff_evaluation_staff_id ON staff_evaluation (staff_id);
 
--- ===================== OUTROS ÍNDICES =====================
--- Adicione índices para outras tabelas conforme o crescimento do sistema e análise de performance. 
+-- Tabela: course_evaluation
+CREATE INDEX idx_course_evaluation_evaluation_id ON course_evaluation (evaluation_id);
+CREATE INDEX idx_course_evaluation_course_id ON course_evaluation (course_id);
+
+-- Tabela: assessment_types
+CREATE INDEX idx_assessment_types_code ON assessment_types (code);
+
+-- Tabela: services
+CREATE INDEX idx_services_service_types_id ON services (service_types_id);
+CREATE INDEX idx_services_departament_id ON services (departament_id);
+
+-- Tabela: service_evaluation
+CREATE INDEX idx_service_evaluation_evaluation_id ON service_evaluation (evaluation_id);
+CREATE INDEX idx_service_evaluation_service_id ON service_evaluation (service_id);
+
+-- Tabela: companies_departments
+CREATE INDEX idx_companies_departments_company_id ON companies_departments (company_id);
+CREATE INDEX idx_companies_departments_department_id ON companies_departments (department_id);
+
+-- Tabela: course_access
+CREATE INDEX idx_course_access_user_id ON course_access (user_id);
+CREATE INDEX idx_course_access_course_availability_id ON course_access (course_availability_id);
+
+-- Tabela: room_resources
+CREATE INDEX idx_room_resources_room_id ON room_resources (room_id);
+CREATE INDEX idx_room_resources_resource_id ON room_resources (resource_id);
+
+-- Tabela: room_bookings
+CREATE INDEX idx_room_bookings_room_id ON room_bookings (room_id);
+CREATE INDEX idx_room_bookings_department_id ON room_bookings (department_id);
+
+-- Tabela: classes_attended
+CREATE INDEX idx_classes_attended_class_id ON classes_attended (class_id);
+CREATE INDEX idx_classes_attended_time_slot_id ON classes_attended (time_slot_id);
+
+-- Tabela: teacher_specializations
+CREATE INDEX idx_teacher_specializations_teacher_id ON teacher_specializations (teacher_id);
+CREATE INDEX idx_teacher_specializations_subject_id ON teacher_specializations (subject_id);
+CREATE INDEX idx_teacher_specializations_qualification_id ON teacher_specializations (qualification_id);
+
+-- Tabela: teacher_availability
+CREATE INDEX idx_teacher_availability_teacher_id ON teacher_availability (teacher_id);
+CREATE INDEX idx_teacher_availability_approved_by ON teacher_availability (approved_by);
+
+-- Tabela: time_slots
+CREATE INDEX idx_time_slots_start_time ON time_slots (start_time);
+CREATE INDEX idx_time_slots_end_time ON time_slots (end_time);
+
+-- Tabela: positions
+CREATE INDEX idx_positions_name ON positions (name);
+
+-- Tabela: user_roles
+CREATE INDEX idx_user_roles_code ON user_roles (code);
+
+-- Tabela: payment_types
+CREATE INDEX idx_payment_types_name ON payment_types (name);
+
+-- Tabela: service_types
+CREATE INDEX idx_service_types_name ON service_types (name);
+
+-- Tabela: resources
+CREATE INDEX idx_resources_responsible_department_id ON resources (responsible_department_id);
+
+-- Tabela: rooms
+CREATE INDEX idx_rooms_name ON rooms (name);
+CREATE INDEX idx_rooms_localization ON rooms (localization);
+
+-- Tabela: library_loans
+CREATE INDEX idx_library_loans_loan_date ON library_loans (loan_date);
+CREATE INDEX idx_library_loans_return_date ON library_loans (return_date);
+
+-- Tabela: library_items
+CREATE INDEX idx_library_items_barcode ON library_items (barcode);
+CREATE INDEX idx_library_items_title ON library_items (title);
+
+-- Tabela: performance
+CREATE INDEX idx_performance_evaluation_id ON performance (evaluation_id);
+CREATE INDEX idx_performance_evaluator_id ON performance (evaluator_id);
+
+-- Tabela: audit_logs
+CREATE INDEX idx_audit_logs_table_name_operation_type ON audit_logs (table_name, operation_type);
+
+-- Tabela: companies_contracts
+CREATE INDEX idx_companies_contracts_start_date ON companies_contracts (start_date);
+CREATE INDEX idx_companies_contracts_end_date ON companies_contracts (end_date);
+
+-- Tabela: companies_sla_evaluation
+CREATE INDEX idx_companies_sla_evaluation_evaluation_date ON companies_sla_evaluation (evaluation_date);
+
+-- Tabela: student_enrollments
+CREATE INDEX idx_student_enrollments_enrollment_date ON student_enrollments (enrollment_date);
+
+-- Tabela: staff_leaves
+CREATE INDEX idx_staff_leaves_start_date ON staff_leaves (start_date);
+CREATE INDEX idx_staff_leaves_end_date ON staff_leaves (end_date);
+
+-- Tabela: payments
+CREATE INDEX idx_payments_payment_date ON payments (payment_date);
+
+-- Tabela: fines
+CREATE INDEX idx_fines_fine_date ON fines (fine_date);
+
+-- Tabela: course_availability
+CREATE INDEX idx_course_availability_academic_year ON course_availability (academic_year);
+
+-- Tabela: grades
+CREATE INDEX idx_grades_score ON grades (score);
+
+-- Tabela: companies_sla
+CREATE INDEX idx_companies_sla_target_percentage ON companies_sla (target_percentage);
+
+-- Tabela: departments
+CREATE INDEX idx_departments_budget_amount ON departments (budget_amount);
+
+-- Tabela: academic_qualifications
+CREATE INDEX idx_academic_qualifications_qualification_type ON academic_qualifications (qualification_type);
+
+-- Tabela: user_identification
+CREATE INDEX idx_user_identification_issue_date ON user_identification (issue_date);
+CREATE INDEX idx_user_identification_expiry_date ON user_identification (expiry_date);
+
+-- Tabela: user_health
+CREATE INDEX idx_user_health_blood_type ON user_health (blood_type);
+
+-- Tabela: staff_positions
+CREATE INDEX idx_staff_positions_start_date ON staff_positions (start_date);
+CREATE INDEX idx_staff_positions_end_date ON staff_positions (end_date);
+
+-- Tabela: evaluation
+CREATE INDEX idx_evaluation_evaluation_date ON evaluation (evaluation_date);
+
+-- Tabela: classes_attended
+CREATE INDEX idx_classes_attended_attendance_date ON classes_attended (attendance_date);
+
+-- Tabela: course_access
+CREATE INDEX idx_course_access_access_date ON course_access (access_date);
+
+-- Tabela: service_evaluation
+CREATE INDEX idx_service_evaluation_evaluation_date ON service_evaluation (evaluation_date);
+
+-- Tabela: services
+CREATE INDEX idx_services_value ON services (value);
+
+-- Tabela: company_payments
+CREATE INDEX idx_company_payments_payment_date ON company_payments (payment_date);
+
+-- Tabela: staff_payments
+CREATE INDEX idx_staff_payments_payment_date ON staff_payments (payment_date);
+
+-- Tabela: companies_departments
+CREATE INDEX idx_companies_departments_assignment_date ON companies_departments (assignment_date);
+
+-- Tabela: studant_fees
+CREATE INDEX idx_studant_fees_reference_month ON studant_fees (reference_month);
+
+-- Tabela: course_fees
+CREATE INDEX idx_course_fees_start_at ON course_fees (start_at);
+CREATE INDEX idx_course_fees_end_at ON course_fees (end_at);

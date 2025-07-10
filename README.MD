@@ -183,7 +183,6 @@ sigepoli/
 - [x] `companies_contracts` — Contratos com empresas
 - [x] `companies_sla` — Acordos de nível de serviço
 - [x] `companies_sla_evaluation` — Avaliações dos SLA
-- [x] `companies_warranties` — Garantias oferecidas pelas empresas
 - [x] `companies_sla_definitions` — Definições dos termos dos SLA
 
 #### **Monitoramento e Pagamentos**

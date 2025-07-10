@@ -225,7 +225,7 @@ CREATE TABLE IF NOT EXISTS student_enrollments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL, -- ID do aluno | FK para students.user_id
     course_id INT NOT NULL, -- ID do curso | FK para courses.id
-    enrollment_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de matrícula
+    enrollment_date DATE NOT NULL DEFAULT(CURRENT_DATE()), -- Data de matrícula
     status ENUM(
         'active', -- Ativo
         'suspended', -- Suspenso
@@ -234,7 +234,7 @@ CREATE TABLE IF NOT EXISTS student_enrollments (
         'transferred', -- Transferido
         'other' -- Outro status
     ) NOT NULL DEFAULT 'active', -- Status da matrícula
-    conclusion_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de conclusão
+    conclusion_date DATE NOT NULL DEFAULT(CURRENT_DATE()), -- Data de conclusão
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -245,7 +245,7 @@ CREATE TABLE IF NOT EXISTS class_enrollments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL, -- ID do aluno | FK para students.user_id
     class_schedules_id INT NOT NULL, -- ID da materia  que se inscreveu na turma | FK para class_schedules.id
-    enrollment_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de matrícula na turma
+    enrollment_date DATE NOT NULL DEFAULT(CURRENT_DATE()), -- Data de matrícula na turma
     type_of_enrollment ENUM(
         'regular', -- Matrícula regular
         'special', -- Matrícula especial
@@ -291,7 +291,7 @@ CREATE TABLE IF NOT EXISTS teachers (
 CREATE TABLE IF NOT EXISTS teacher_specializations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     teacher_id INT NOT NULL, -- ID do professor | FK para teachers.user_id
-    qualification_id INT NOT NULL, -- ID da qualificação | FK para academic_qualifications.id
+    qualification_id INT NULL, -- ID da qualificação | FK para academic_qualifications.id
     subject_area VARCHAR(100) NOT NULL, -- Área de conhecimento
     subject_id INT NOT NULL, -- ID da disciplina | FK para subjects.id
     proficiency_level ENUM(
@@ -517,7 +517,7 @@ CREATE TABLE IF NOT EXISTS department_budgets (
 CREATE TABLE IF NOT EXISTS staff (
     user_id INT NOT NULL PRIMARY KEY, -- Referencia users.id | FK para users.id
     staff_number VARCHAR(50) NOT NULL, -- Número de identificação do funcionário
-    hire_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de contratação
+    hire_date DATE NOT NULL DEFAULT(CURRENT_DATE()), -- Data de contratação
     employment_type ENUM(
         'full_time',
         'part_time',
@@ -596,7 +596,7 @@ CREATE TABLE IF NOT EXISTS staff_positions (
     user_id INT NOT NULL, -- Referencia users.id | FK para users.id
     position_id INT NOT NULL, -- ID do cargo | FK para positions.id
     description TEXT, -- Descrição das responsabilidades no cargo
-    start_date DATE NOT NULL DEFAULT (CURRENT_DATE()), -- Data de início no cargo
+    start_date DATE NOT NULL DEFAULT(CURRENT_DATE()), -- Data de início no cargo
     end_date DATE, -- Data de término no cargo (se aplicável)
     status ENUM(
         'active',
@@ -771,7 +771,7 @@ CREATE TABLE IF NOT EXISTS service_types (
 CREATE TABLE IF NOT EXISTS service_evaluation (
     id INT AUTO_INCREMENT PRIMARY KEY,
     evaluation_id INT NOT NULL, -- Referencia evaluation.id | FK para evaluation.id
-    service_id INT NOT NULL, -- ID da empresa prestadora de serviço (referencia users.id) | FK para users.id
+    service_id INT NOT NULL, -- ID do serviço (referencia service.id) | FK para service.id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -803,6 +803,45 @@ CREATE TABLE IF NOT EXISTS studant_payments (
     student_id INT NOT NULL, -- ID do aluno que pagou (referencia students.user_id) | FK para students.user_id
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- TABELA DE PREÇOS DE CURSOS (course_fees)
+-- Esta tabela define os valores e condições de pagamento para cada curso oferecido.
+-- Permite configurar diferentes tipos de pagamento (total ou mensal) e regras de multas.
+CREATE TABLE IF NOT EXISTS course_fees (
+    id INT AUTO_INCREMENT PRIMARY KEY, -- Identificador único da taxa do curso
+    course_id INT NOT NULL, -- ID do curso ao qual esta taxa se aplica (FK para courses.id)
+    type_payment ENUM(
+        'full_payment',
+        'monthly_installment'
+    ) DEFAULT 'monthly_installment', -- Tipo de pagamento: 'full_payment' (pagamento total) ou 'monthly_installment' (parcela mensal)
+    day_limit_fines INT, -- Dia limite do mês para pagamento sem multa (ex: 10 para o dia 10)
+    start_at TIMESTAMP, -- Data de início da validade desta configuração de taxa
+    end_at TIMESTAMP, -- Data de término da validade desta configuração de taxa
+    amount DECIMAL(10, 2) NOT NULL, -- Valor da taxa para o curso (DECIMAL com 2 casas decimais para valores monetários)
+    grace_period_days INT DEFAULT 10, -- Número de dias de tolerância após o vencimento antes da multa (padrão: 10 dias)
+    fine_percentual DECIMAL(8, 2) DEFAULT 0.00, -- Percentual da multa a ser aplicada sobre o valor devido em caso de atraso (ex: 0.05 para 5%)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp de criação do registro
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Timestamp da última atualização do registro
+);
+
+-- TABELA DE PAGAMENTOS DE PROPINAS POR ESTUDANTES (student_fees)
+-- Esta tabela registra os pagamentos de propinas (taxas) efetuados por cada estudante.
+-- Vincula o pagamento a um curso específico e ao status de adimplência.
+CREATE TABLE IF NOT EXISTS studant_fees (
+    id INT AUTO_INCREMENT PRIMARY KEY, -- Identificador único do registro de propina do estudante
+    student_id INT NOT NULL, -- ID do estudante que realizou o pagamento (FK para students.user_id)
+    course_fee_id INT, -- ID da configuração de taxa do curso aplicada a este pagamento (FK para course_fees.id)
+    payment_id INT NOT NULL, -- ID do registro de pagamento na tabela 'payments' (FK para payments.id)
+    reference_month INT NOT NULL, -- Mês de referência ao qual esta propina se refere (ex: 1 para Janeiro, 12 para Dezembro)
+    status ENUM(
+        'pending',
+        'paid',
+        'late',
+        'waived'
+    ) DEFAULT 'pending', -- Status do pagamento: 'pending' (pendente), 'paid' (pago), 'late' (atrasado), 'waived' (dispensado)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp de criação do registro
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Timestamp da última atualização do registro
 );
 
 -- TABELA DE PAGAMENTOS A EMPRESAS
@@ -864,8 +903,6 @@ CREATE TABLE IF NOT EXISTS fines (
 -- coordenadores de curso responsáveis por currículos, grade horária e
 -- indicadores de qualidade
 -- ==========================================================================================
-
-
 
 -- ==========================================================================================
 -- Operacional

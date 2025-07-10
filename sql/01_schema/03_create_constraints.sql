@@ -373,8 +373,7 @@ ALTER TABLE companies_sla
 ADD CONSTRAINT fk_companies_sla_company 
 FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE;
 
--- AVALIAÇÕES DE SLA
-ALTER TABLE companies_sla_evaluation 
+ALTER TABLE companies_sla 
 ADD CONSTRAINT fk_companies_sla_evaluation_company 
 FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE;
 
@@ -425,15 +424,6 @@ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 ALTER TABLE grades 
 ADD CONSTRAINT check_grades_score_range 
 CHECK (score >= 0 AND score <= 20);
-
--- VALIDAÇÃO DE PERFORMANCE
-ALTER TABLE performance 
-ADD CONSTRAINT check_performance_overall_score 
-CHECK (overall_score >= 0 AND overall_score <= 5);
-
-ALTER TABLE performance 
-ADD CONSTRAINT check_performance_score 
-CHECK (score >= 0 AND score <= 5);
 
 -- VALIDAÇÃO DE AVALIAÇÕES DE SLA
 ALTER TABLE companies_sla_evaluation 
@@ -571,3 +561,21 @@ FOREIGN KEY (service_types_id) REFERENCES service_types(id) ON DELETE RESTRICT;
 ALTER TABLE services
 ADD CONSTRAINT fk_services_department
 FOREIGN KEY (departament_id) REFERENCES departments(id) ON DELETE RESTRICT; 
+
+-- CONSTRAINTS PARA course_fees
+ALTER TABLE course_fees
+ADD CONSTRAINT fk_course_fees_course
+FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE RESTRICT;
+
+-- CONSTRAINTS PARA studant_fees
+ALTER TABLE studant_fees
+ADD CONSTRAINT fk_studant_fees_student
+FOREIGN KEY (student_id) REFERENCES students(user_id) ON DELETE RESTRICT;
+
+ALTER TABLE studant_fees
+ADD CONSTRAINT fk_studant_fees_course_fee
+FOREIGN KEY (course_fee_id) REFERENCES course_fees(id) ON DELETE SET NULL;
+
+ALTER TABLE studant_fees
+ADD CONSTRAINT fk_studant_fees_payment
+FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE RESTRICT;

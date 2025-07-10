@@ -1,370 +1,506 @@
 # Modelo Entidade Relacionamento Conceitual (MER) - SIGEPOLI
 
-Este modelo conceitual representa as entidades principais e seus relacionamentos no sistema SIGEPOLI, abstraindo detalhes de implementação para focar na visão de alto nível do negócio.
-
-## Entidades Principais e Seus Atributos Chave:
-
-- **Usuário**: Representa qualquer pessoa que interage com o sistema (alunos, professores, funcionários, etc.).
-  - Atributos: Nome, Email, Telefone, Endereço, Data de Nascimento.
-
-- **Identificação do Usuário**: Documentos oficiais do usuário.
-  - Atributos: Tipo de Documento, Número, Nacionalidade.
-
-- **Saúde do Usuário**: Informações de saúde e emergência.
-  - Atributos: Condições, Medicamentos, Acessibilidade, Contato de Emergência.
-
-- **Papel de Usuário**: Papéis possíveis no sistema (admin, aluno, professor, etc.).
-  - Atributos: Nome, Permissões.
-
-- **Atribuição de Papel**: Relaciona usuários a papéis.
-  - Atributos: Data de Atribuição, Ativo.
-
-- **Departamento**: Unidade organizacional da instituição.
-  - Atributos: Nome, Sigla, Descrição.
-
-- **Orçamento do Departamento**: Orçamento anual de cada departamento.
-  - Atributos: Ano Fiscal, Valor, Valor Gasto.
-
-- **Funcionário**: Funcionários administrativos e docentes.
-  - Atributos: Número, Data de Contratação, Categoria, Status.
-
-- **Qualificação Acadêmica**: Qualificações dos funcionários.
-  - Atributos: Título, Tipo, Instituição, Data de Conclusão.
-
-- **Cargo**: Cargos disponíveis na instituição.
-  - Atributos: Nome, Descrição, Salário.
-
-- **Cargo do Funcionário**: Relaciona funcionários a cargos.
-  - Atributos: Data de Início, Data de Fim.
-
-- **Férias/Licença**: Períodos de afastamento do funcionário.
-  - Atributos: Tipo, Data de Início, Data de Fim.
-
-- **Curso**: Programa de estudo oferecido pela instituição.
-  - Atributos: Nome, Descrição, Duração.
-
-- **Disponibilidade do Curso**: Vagas por ano letivo.
-  - Atributos: Ano, Limite de Alunos.
-
-- **Disciplina**: Unidade de ensino dentro de um curso.
-  - Atributos: Nome, Código, Carga Horária.
-
-- **Disciplina do Curso**: Relação N:M entre curso e disciplina.
-  - Atributos: Semestre, Obrigatória, Pré-requisitos.
-
-- **Turma**: Instância específica de uma disciplina em um período.
-  - Atributos: Nome, Código, Ano Letivo, Semestre.
-
-- **Horário**: Período de aula.
-  - Atributos: Dia da Semana, Turno, Início, Fim.
-
-- **Horário da Turma**: Relaciona turma, disciplina, professor e horários.
-  - Atributos: Status, Aprovado por.
-
-- **Sala**: Salas de aula e outros ambientes.
-  - Atributos: Nome, Localização, Capacidade, Tipo.
-
-- **Recurso**: Recursos disponíveis (projetor, etc.).
-  - Atributos: Nome, Departamento Responsável.
-
-- **Recurso da Sala**: Relação N:M entre sala e recurso.
-  - Atributos: Status.
-
-- **Reserva de Sala**: Reservas especiais de salas.
-  - Atributos: Data, Início, Fim, Motivo.
-
-- **Aluno**: Discente matriculado em cursos e turmas.
-  - Atributos: Número de Matrícula.
-
-- **Matrícula em Curso**: Matrícula do aluno em curso.
-  - Atributos: Data, Status.
-
-- **Matrícula em Turma**: Matrícula do aluno em turma.
-  - Atributos: Data, Status.
-
-- **Professor**: Docente responsável por ministrar disciplinas.
-  - Atributos: Número de Funcionário, Categoria Acadêmica.
-
-- **Especialização do Professor**: Disciplinas que o professor pode ministrar.
-  - Atributos: Disciplina, Qualificação.
-
-- **Disponibilidade do Professor**: Horários disponíveis para lecionar.
-  - Atributos: Dia, Turno, Horário.
-
-- **Nota**: Registro de avaliação do aluno.
-  - Atributos: Valor, Tipo de Avaliação.
-
-- **Tipo de Avaliação**: Prova, trabalho, etc.
-  - Atributos: Nome, Peso.
-
-- **Frequência**: Presença do aluno nas aulas.
-  - Atributos: Data, Status.
-
-- **Aulas Ministradas**: Registro de aulas dadas.
-  - Atributos: Data, Horário.
-
-- **Empresa Terceirizada**: Empresas que prestam serviços à instituição.
-  - Atributos: Nome, NIF, Endereço.
-
-- **Empresa-Departamento**: Relação N:M entre empresa e departamento.
-  - Atributos: -
-
-- **Contrato**: Acordo formal com empresas terceirizadas.
-  - Atributos: Detalhes, Início, Término.
-
-- **Garantia da Empresa**: Garantias apresentadas para contratos.
-  - Atributos: Tipo, Validade.
-
-- **SLA (Service Level Agreement)**: Acordo de nível de serviço.
-  - Atributos: Nome, Percentual Alvo, Penalidade.
-
-- **Definição de SLA**: Termos e parâmetros do SLA.
-  - Atributos: Descrição, Percentual.
-
-- **Avaliação de SLA**: Avaliação mensal do SLA.
-  - Atributos: Percentual, Data.
-
-- **Pagamento**: Transação financeira.
-  - Atributos: Valor, Data, Método.
-
-- **Tipo de Pagamento**: Categoria do pagamento.
-  - Atributos: Nome.
-
-- **Pagamento de Aluno**: Pagamento feito por aluno.
-  - Atributos: -
-
-- **Pagamento de Funcionário**: Pagamento feito a funcionário.
-  - Atributos: -
-
-- **Pagamento de Empresa**: Pagamento feito a empresa.
-  - Atributos: -
-
-- **Multa**: Penalidade aplicada.
-  - Atributos: Valor, Motivo.
-
-- **Serviço**: Serviços oferecidos pela instituição.
-  - Atributos: Nome, Descrição, Valor.
-
-- **Tipo de Serviço**: Categoria do serviço.
-  - Atributos: Nome.
-
-- **Avaliação de Serviço**: Avaliação dos serviços.
-  - Atributos: Nota, Comentário.
-
-- **Item de Biblioteca**: Recursos disponíveis na biblioteca.
-  - Atributos: Título, ISBN, Código de Barras.
-
-- **Empréstimo**: Registro de empréstimo de item da biblioteca.
-  - Atributos: Data de Empréstimo, Data de Devolução Prevista.
-
-- **Acesso ao Curso**: Inscrição do aluno em curso.
-  - Atributos: Data, Status.
-
-- **Notificação**: Mensagens do sistema para usuários.
-  - Atributos: Título, Mensagem, Data.
-
-- **Log de Auditoria**: Registro de operações críticas.
-  - Atributos: Usuário, Tabela, Operação, Data.
-
-- **Avaliação**: Registro de desempenho (alunos, funcionários, serviços).
-  - Atributos: Título, Tipo, Data de Início, Data de Término.
-
-- **Avaliação de Funcionário**: Avaliação específica de funcionário.
-  - Atributos: Nota, Comentário.
-
-- **Avaliação de Curso**: Avaliação específica de curso.
-  - Atributos: Nota, Comentário.
-
-- **Performance**: Resultado de avaliação.
-  - Atributos: Nota, Data.
-
-
-## Relacionamentos Chave:
-
-- **Usuário** `possui` **Papel de Usuário** (1:N)
-- **Usuário** `possui` **Identificação do Usuário** (1:1)
-- **Usuário** `possui` **Saúde do Usuário** (1:1)
-- **Usuário** `possui` **Qualificação Acadêmica** (1:N)
-- **Usuário** `possui` **Notificação** (1:N)
-- **Usuário** `realiza` **Empréstimo** (1:N)
-- **Usuário** `realiza` **Log de Auditoria** (1:N)
-- **Usuário** `é` **Funcionário** (1:1)
-- **Usuário** `é` **Aluno** (1:1)
-- **Usuário** `é` **Professor** (1:1)
-
-- **Funcionário** `possui` **Cargo do Funcionário** (1:N)
-- **Funcionário** `tem` **Férias/Licença** (1:N)
-- **Funcionário** `pertence a` **Departamento** (N:1)
-- **Funcionário** `recebe` **Pagamento de Funcionário** (1:N)
-- **Funcionário** `é coordenador de` **Curso** (1:1)
-- **Funcionário** `é avaliado em` **Avaliação de Funcionário** (1:N)
-- **Funcionário** `possui` **Qualificação Acadêmica** (1:N)
-
-- **Departamento** `possui` **Orçamento do Departamento** (1:N)
-- **Departamento** `oferece` **Curso** (1:N)
-- **Departamento** `possui` **Serviço** (1:N)
-- **Departamento** `possui` **Recurso** (1:N)
-- **Departamento** `tem` **Empresa-Departamento** (N:M)
-
-- **Curso** `possui` **Disponibilidade do Curso** (1:N)
-- **Curso** `contém` **Disciplina do Curso** (1:N)
-- **Curso** `tem` **Turma** (1:N)
-- **Curso** `é avaliado em` **Avaliação de Curso** (1:N)
-
-- **Disciplina** `é oferecida em` **Disciplina do Curso** (N:M)
-- **Disciplina** `é ministrada em` **Turma** (N:M via Horário da Turma)
-- **Disciplina** `é ministrada por` **Professor** (N:M via Especialização do Professor)
-
-- **Turma** `tem` **Horário da Turma** (1:N)
-- **Turma** `tem` **Matrícula em Turma** (1:N)
-- **Turma** `ocorre em` **Sala** (N:1 via Horário da Turma)
-- **Turma** `tem` **Aulas Ministradas** (1:N)
-- **Turma** `tem` **Frequência** (1:N)
-
-- **Aluno** `matricula-se em` **Matrícula em Curso** (1:N)
-- **Aluno** `matricula-se em` **Matrícula em Turma** (1:N)
-- **Aluno** `recebe` **Nota** (1:N)
-- **Aluno** `tem` **Frequência** (1:N)
-- **Aluno** `realiza` **Pagamento de Propina** (1:N)
-- **Aluno** `realiza` **Solicitação de Serviço** (1:N)
-- **Propina de Aluno** `gera` **Pagamento de Aluno** (1:1)
-
-- **Professor** `possui` **Especialização do Professor** (1:N)
-- **Professor** `possui` **Disponibilidade do Professor** (1:N)
-- **Professor** `ministra` **Horário da Turma** (1:N)
-- **Horário da Turma** `é confirmado por` **Coordenador do Curso** (N:1)
-- **Professor** `é avaliado em` **Avaliação de Funcionário** (1:N)
-
-- **Sala** `possui` **Recurso da Sala** (1:N)
-- **Sala** `tem` **Reserva de Sala** (1:N)
-- **Recurso** `é alocado em` **Recurso da Sala** (N:M)
-
-- **Empresa Terceirizada** `tem` **Empresa-Departamento** (N:M)
-- **Empresa Terceirizada** `tem` **Contrato** (1:N)
-- **Empresa Terceirizada** `tem` **SLA** (1:N)
-- **Empresa Terceirizada** `recebe` **Pagamento de Empresa** (1:N)
-- **Empresa Terceirizada** `pode ter` **Multa** (1:N)
-- **Contrato** `tem` **Garantia da Empresa** (1:N)
-- **Contrato** `tem` **SLA** (1:N)
-
-- **SLA** `tem` **Definição de SLA** (1:N)
-- **SLA** `tem` **Avaliação de SLA** (1:N)
-
-- **Avaliação de SLA** `gera` **Multa** (0:N)
-- **Pagamento de Aluno** `é efetuado via` **Pagamento** (N:1)
-- **Pagamento de Funcionário** `é efetuado via` **Pagamento** (N:1)
-- **Pagamento de Empresa** `é efetuado via` **Pagamento** (N:1)
-- **Pagamento** `tem` **Tipo de Pagamento** (N:1)
-- **Serviço** `tem` **Tipo de Serviço** (N:1)
-- **Serviço** `recebe` **Pagamento** (1:N)
-- **Serviço** `é avaliado em` **Avaliação de Serviço** (1:N)
-
-- **Item de Biblioteca** `é emprestado em` **Empréstimo** (1:N)
-- **Avaliação** `avalia` **Funcionário/Curso/Serviço** (1:N)
-- **Avaliação** `gera` **Performance** (1:N)
-- **Acesso ao Curso** `é de` **Aluno** (N:1)
-
-## Fluxos de processos adicionais
-
-### Fluxo de processos de Funcionário Administrativo
+Este documento integra entidades, atributos, relacionamentos e fluxos de processos detalhados, todos alinhados ao schema real do SIGEPOLI. Cada fluxo está descrito passo a passo, sem simplificações, e faz referência direta às tabelas e campos reais. Entidades ou fluxos sem tabela real identificada estão sinalizados para ajuste futuro.
+
+---
+
+## 1. Usuário e Papéis
+
+### Entidade: Usuário (`users`)
+- **Atributos:** id, first_name, last_name, email, phone, address, date_of_birth, status
+- **Relacionamentos:**
+  - Possui papéis via `user_role_assignments` (**1:N**)
+  - Recebe notificações via `notifications` (**1:N**)
+  - Realiza empréstimos via `library_loans` (**1:N**)
+  - Realiza logs de auditoria via `audit_logs` (**1:N**)
+  - É funcionário via `staff` (**1:1**)
+  - É aluno via `students` (**1:1**)
+  - É professor via `teachers` (**1:1**)
+
+### Entidade: Papel de Usuário (`user_roles`)
+- **Atributos:** id, name, permissions
+- **Relacionamentos:**
+  - Atribuído a usuários via `user_role_assignments` (**1:N**)
+
+### Entidade: Atribuição de Papel (`user_role_assignments`)
+- **Atributos:** id, user_id, role_id, assigned_at, is_active
+- **Relacionamentos:**
+  - Refere-se a um usuário (`users`) (**N:1**)
+  - Refere-se a um papel (`user_roles`) (**N:1**)
+
+#### Fluxo de Atribuição de Papel
+1. Cadastro do usuário em `users`.
+2. Criação de papel em `user_roles` (se necessário).
+3. Atribuição do papel ao usuário em `user_role_assignments` (campos: user_id, role_id, assigned_at, is_active).
+4. O usuário passa a ter permissões e acessos conforme o papel.
+
+---
+
+## 2. Funcionário Administrativo
+
+### Entidade: Funcionário (`staff`)
+- **Atributos:** user_id, staff_number, hire_date, category, status, department_id
+- **Relacionamentos:**
+  - Vinculado a um usuário (`users`) (**1:1**)
+  - Pertence a um departamento (`departments`) (**N:1**)
+  - Possui cargos (`staff_positions`) (**1:N**)
+  - Tem férias/licenças (`staff_leaves`) (**1:N**)
+  - Recebe pagamentos (`staff_payments`) (**1:N**)
+  - Possui qualificações acadêmicas (`academic_qualifications`) (**1:N**)
+  - Participa de avaliações (`staff_evaluation`) (**1:N**)
+  - É coordenador de curso (`courses`) (**1:1**)
+
+### Entidade: Cargo do Funcionário (`staff_positions`)
+- **Atributos:** staff_id, position_id, start_date, end_date
+- **Relacionamentos:**
+  - Refere-se a um funcionário (`staff`) (**N:1**)
+  - Refere-se a um cargo (`positions`) (**N:1**)
+
+### Entidade: Férias/Licença (`staff_leaves`)
+- **Atributos:** staff_id, leave_type, start_date, end_date
+- **Relacionamentos:**
+  - Refere-se a um funcionário (`staff`) (**N:1**)
+
+### Entidade: Pagamento de Funcionário (`staff_payments`)
+- **Atributos:** staff_id, payment_id, amount, etc.
+- **Relacionamentos:**
+  - Refere-se a um funcionário (`staff`) (**N:1**)
+  - Refere-se a um pagamento (`payments`) (**N:1**)
+
+### Entidade: Qualificação Acadêmica (`academic_qualifications`)
+- **Atributos:** staff_id, title, type, institution, completion_date
+- **Relacionamentos:**
+  - Refere-se a um funcionário (`staff`) (**N:1**)
+
+### Entidade: Avaliação de Funcionário (`staff_evaluation`)
+- **Atributos:** staff_id, evaluation_id, score, comments
+- **Relacionamentos:**
+  - Refere-se a um funcionário (`staff`) (**N:1**)
+  - Refere-se a uma avaliação (`evaluation`) (**N:1**)
+
+#### Fluxo de Funcionário Administrativo
 1. Registro de dados pessoais em `users`.
-2. Vinculação a `staff` com departamento.
-3. Atribuição de cargo em `staff_positions`.
-4. Submissão de férias/licenças em `staff_leaves`.
-5. Recebimento de pagamentos em `staff_payments` via `payments`.
-6. Participação em avaliações internas (`staff_evaluation`).
+2. Vinculação do usuário em `staff` (campos: user_id, staff_number, hire_date, department_id, etc.).
+3. Atribuição de cargo em `staff_positions` (campos: staff_id, position_id, start_date, end_date).
+4. Submissão de férias/licenças em `staff_leaves` (campos: staff_id, leave_type, start_date, end_date).
+5. Recebimento de pagamentos em `staff_payments` (campos: staff_id, payment_id, amount, etc.) via `payments`.
+6. Participação em avaliações internas em `staff_evaluation` (campos: staff_id, evaluation_id, score, comments).
+7. Registro de qualificações acadêmicas em `academic_qualifications` (campos: staff_id, title, type, institution, completion_date).
 
-### Fluxo de processos de Chefe de Departamento
-1. Atribuição do papel via `user_role_assignments` (role "head_department").
-2. Gestão dos dados do departamento em `departments` e orçamento em `department_budgets`.
-3. Aprovação de solicitações de recursos (`room_bookings`, `resources`).
-4. Aprovação de propostas de contratação de empresas (`companies_contracts`).
-5. Aprovação de pagamentos departamentais (`company_payments`).
+---
 
-### Fluxo de processos de Coordenador de Curso
-1. Atribuição do papel via `user_role_assignments` (role "coordinator").
-2. Definição/atualização de dados do curso em `courses` (campo `coordinator_staff_id`).
-3. Aprovação da disponibilidade de professores em `teacher_availability` (RN06).
-4. Aprovação de horários de turma em `class_schedules`.
-5. Acompanhamento de desempenho de cursos via `course_evaluation`.
+## 3. Chefe de Departamento
 
-### Fluxo de processos de Professor
+### Entidade: Departamento (`departments`)
+- **Atributos:** id, name, acronym, description
+- **Relacionamentos:**
+  - Possui orçamento (`department_budgets`) (**1:N**)
+  - Oferece cursos (`courses`) (**1:N**)
+  - Possui serviços (`services`) (**1:N**)
+  - Possui recursos (`resources`) (**1:N**)
+  - Tem empresa-departamento (`companies_departments`) (**N:M**)
+
+### Entidade: Orçamento do Departamento (`department_budgets`)
+- **Atributos:** id, department_id, fiscal_year, total_budget, spent_budget
+- **Relacionamentos:**
+  - Refere-se a um departamento (`departments`) (**N:1**)
+
+### Entidade: Empresa-Departamento (`companies_departments`)
+- **Atributos:** company_id, department_id
+- **Relacionamentos:**
+  - Refere-se a um departamento (`departments`) (**N:1**)
+  - Refere-se a uma empresa (`companies`) (**N:1**)
+
+#### Fluxo de Chefe de Departamento
+1. Atribuição do papel "head_department" via `user_role_assignments`.
+2. Gestão dos dados do departamento em `departments`.
+3. Gestão do orçamento em `department_budgets` (campos: department_id, fiscal_year, total_budget, spent_budget).
+4. Aprovação de solicitações de recursos em `room_bookings` (campos: room_id, department_id, reason, date, status) e cadastro de recursos em `resources` (campos: name, responsible_department_id).
+5. Aprovação de propostas de contratação de empresas `companies_contracts`.
+6. Aprovação de pagamentos departamentais em `company_payments` (campos: company_id, payment_id, department_id, etc.).
+
+---
+
+## 4. Professor
+
+### Entidade: Professor (`teachers`)
+- **Atributos:** staff_id, academic_rank, tenure_status, is_thesis_advisor
+- **Relacionamentos:**
+  - Vinculado a um funcionário (`staff`) (**1:1**)
+  - Possui especializações (`teacher_specializations`) (**1:N**)
+  - Define disponibilidade (`teacher_availability`) (**1:N**)
+  - Leciona em turmas (`class_schedules`) (**1:N**)
+  - Participa de avaliações de desempenho (`staff_evaluation`) (**1:N**)
+
+### Entidade: Especialização do Professor (`teacher_specializations`)
+- **Atributos:** teacher_id, subject_area, subject_id, proficiency_level, is_approved
+- **Relacionamentos:**
+  - Refere-se a um professor (`teachers`) (**N:1**)
+  - Refere-se a uma disciplina (`subjects`) (**N:1**)
+
+### Entidade: Disponibilidade do Professor (`teacher_availability`)
+- **Atributos:** teacher_id, time_slot_ids, total_hours, approved
+- **Relacionamentos:**
+  - Refere-se a um professor (`teachers`) (**N:1**)
+
+### Entidade: Horário da Turma (`class_schedules`)
+- **Atributos:** id, class_id, subject_id, teacher_id, time_slot_ids, room_id, status, approved_by
+- **Relacionamentos:**
+  - Refere-se a uma turma (`classes`) (**N:1**)
+  - Refere-se a uma disciplina (`subjects`) (**N:1**)
+  - Ministrado por um professor (`teachers`) (**N:1**)
+  - Ocorre em uma sala (`rooms`) (**N:1**)
+  - Confirmado por coordenador do curso (`staff`) (**N:1**)
+
+#### Fluxo de Professor
 1. Cadastro em `users` → vínculo em `staff` → vínculo em `teachers`.
-2. Definição de especializações em `teacher_specializations`.
-3. Submissão de disponibilidade semanal em `teacher_availability`.
-4. Lecionar aulas conforme `class_schedules` (presença em `classes_attended`).
-5. Lançamento de notas em `grades` e controle de frequência em `attendance`.
+2. Definição de especializações em `teacher_specializations` (campos: teacher_id, subject_area, subject_id, proficiency_level, is_approved).
+3. Submissão de disponibilidade semanal em `teacher_availability` (campos: teacher_id, time_slot_ids, total_hours, approved).
+4. Lecionar aulas conforme `class_schedules` (presença registrada em `classes_attended`).
+5. Lançamento de notas em `grades` (campos: student_id, class_schedules_id, assessment_type_id, score) e controle de frequência em `attendance` (campos: student_id, classes_attended_id, status).
 6. Participação em avaliações de desempenho (`staff_evaluation`).
 
-### Fluxo de Pagamentos
+---
+
+## 5. Aluno
+
+### Entidade: Aluno (`students`)
+- **Atributos:** user_id, student_number, studying, searching, recommendation
+- **Relacionamentos:**
+  - Vinculado a um usuário (`users`) (**1:1**)
+  - Matricula-se em cursos (`student_enrollments`) (**1:N**)
+  - Matricula-se em turmas (`class_enrollments`) (**1:N**)
+  - Tem frequência (`attendance`) (**1:N**)
+  - Recebe notas (`grades`) (**1:N**)
+  - Realiza pagamentos de propina (`student_fees`, `student_payments`) (**1:N**)
+  - Solicita serviços (`student_payments` + `services`) (**1:N**)
+
+### Entidade: Matrícula em Curso (`student_enrollments`)
+- **Atributos:** id, student_id, course_id, enrollment_date, status, conclusion_date
+- **Relacionamentos:**
+  - Refere-se a um aluno (`students`) (**N:1**)
+  - Refere-se a um curso (`courses`) (**N:1**)
+
+### Entidade: Matrícula em Turma (`class_enrollments`)
+- **Atributos:** id, student_id, class_schedules_id, enrollment_date, type_of_enrollment, status
+- **Relacionamentos:**
+  - Refere-se a um aluno (`students`) (**N:1**)
+  - Refere-se a um horário de turma (`class_schedules`) (**N:1**)
+
+### Entidade: Nota (`grades`)
+- **Atributos:** student_id, class_schedules_id, assessment_type_id, score
+- **Relacionamentos:**
+  - Refere-se a um aluno (`students`) (**N:1**)
+  - Refere-se a um horário de turma (`class_schedules`) (**N:1**)
+
+### Entidade: Frequência (`attendance`)
+- **Atributos:** student_id, classes_attended_id, status
+- **Relacionamentos:**
+  - Refere-se a um aluno (`students`) (**N:1**)
+  - Refere-se a uma aula ministrada (`classes_attended`) (**N:1**)
+
+### Entidade: Propina do Aluno (`student_fees`)
+- **Atributos:** id, student_id, amount, due_date, status, payment_id
+- **Relacionamentos:**
+  - Refere-se a um aluno (`students`) (**N:1**)
+  - Gera pagamento de aluno (`student_payments`) (**1:1**)
+
+### Entidade: Pagamento de Aluno (`student_payments`)
+- **Atributos:** id, payment_id, service_id, student_id, created_at, updated_at
+- **Relacionamentos:**
+  - Refere-se a um aluno (`students`) (**N:1**)
+  - Refere-se a um serviço (`services`) (**N:1**)
+  - Efetuado via pagamento (`payments`) (**N:1**)
+
+#### Fluxo de Aluno
+1. Inscrição no curso registrada em `course_access` (campos: student_id, course_id, exam_score, etc.).
+2. Prova de acesso e respectiva nota armazenadas no campo `exam_score` de `course_access`.
+3. Matrícula no curso em `student_enrollments` (campos: student_id, course_id, enrollment_date, status).
+4. Matrícula em turma em `class_enrollments` (campos: student_id, class_schedules_id, enrollment_date, type_of_enrollment, status).
+5. Emissão de propina em `student_fees` → pagamento em `student_payments`.
+6. Frequência registrada em `attendance` para aulas listadas em `classes_attended`.
+7. Lançamento de notas em `grades`.
+8. Solicitação e pagamento de serviços por meio de `student_payments` vinculando a tabela `services`.
+9. Multas por atrasos ou infrações `fines`.
+10. Avaliação de cursos, funcionários e serviços em `course_evaluation`, `staff_evaluation`, `service_evaluation`.
+
+---
+
+
+## 6. Curso, Disciplina, Turma e Matrículas
+
+### Entidade: Curso (`courses`)
+- **Atributos:** id, name, description, duration, department_id, coordinator_staff_id
+- **Relacionamentos:**
+  - Oferecido por um departamento (`departments`) (**N:1**)
+  - Possui disciplinas (`course_subjects`) (**1:N**)
+  - Possui disponibilidade de vagas (`course_availability`) (**1:N**)
+  - Coordenado por funcionário (`staff`) (**N:1**)
+  - Tem turmas (`classes`) (**1:N**)
+  - É avaliado em avaliação de curso (`course_evaluation`) (**1:N**)
+
+### Entidade: Disciplina (`subjects`)
+- **Atributos:** id, name, code, workload
+- **Relacionamentos:**
+  - Oferecida em disciplina do curso (`course_subjects`) (**N:M**)
+  - Ministrada em turma (`class_schedules`) (**N:M** via `class_schedules`)
+  - Ministrada por professor (`teacher_specializations`) (**N:M** via `teacher_specializations`)
+
+### Entidade: Disciplinas do Curso (`course_subjects`)
+- **Atributos:** id, course_id, subject_id, semester, is_mandatory, prerequisites
+- **Relacionamentos:**
+  - Refere-se a um curso (`courses`) (**N:1**)
+  - Refere-se a uma disciplina (`subjects`) (**N:1**)
+
+### Entidade: Turma (`classes`)
+- **Atributos:** id, name, code, academic_year, semester, course_id
+- **Relacionamentos:**
+  - Refere-se a um curso (`courses`) (**N:1**)
+  - Tem horários de turma (`class_schedules`) (**1:N**)
+  - Tem matrículas em turma (`class_enrollments`) (**1:N**)
+  - Tem aulas ministradas (`classes_attended`) (**1:N**)
+
+### Entidade: Horário da Turma (`class_schedules`)
+- **Atributos:** id, class_id, subject_id, teacher_id, time_slot_ids, room_id, status, approved_by
+- **Relacionamentos:**
+  - Refere-se a uma turma (`classes`) (**N:1**)
+  - Refere-se a uma disciplina (`subjects`) (**N:1**)
+  - Ministrado por um professor (`teachers`) (**N:1**)
+  - Ocorre em uma sala (`rooms`) (**N:1**)
+  - Confirmado por coordenador do curso (`staff`) (**N:1**)
+
+#### Fluxo de Matrícula e Gestão Acadêmica
+1. Oferta de curso registrada em `courses` e vinculada ao departamento.
+2. Disciplinas associadas ao curso em `course_subjects`.
+3. Disponibilidade de vagas por ano em `course_availability`.
+4. Criação de turmas em `classes` e definição de horários em `class_schedules`.
+5. Matrícula do aluno no curso em `student_enrollments`.
+6. Matrícula do aluno em turmas/disciplina em `class_enrollments`.
+7. Registro de presença em aulas via `attendance` e aulas ministradas em `classes_attended`.
+8. Lançamento de notas em `grades`.
+
+---
+
+## 7. Infraestrutura: Salas, Recursos, Reservas
+
+### Entidade: Sala (`rooms`)
+- **Atributos:** id, name, description, localization, capacity, type_of_room, acessibility, is_available
+- **Relacionamentos:**
+  - Possui recursos da sala (`room_resources`) (**1:N**)
+  - Tem reservas de sala (`room_bookings`) (**1:N**)
+
+### Entidade: Recurso (`resources`)
+- **Atributos:** id, name, description, responsible_department_id
+- **Relacionamentos:**
+  - É alocado em recurso da sala (`room_resources`) (**N:M**)
+  - Pertence a um departamento (`departments`) (**N:1**)
+
+### Entidade: Recurso da Sala (`room_resources`)
+- **Atributos:** id, room_id, resource_id, status_resources
+- **Relacionamentos:**
+  - Refere-se a uma sala (`rooms`) (**N:1**)
+  - Refere-se a um recurso (`resources`) (**N:1**)
+
+### Entidade: Reserva de Sala (`room_bookings`)
+- **Atributos:** id, room_id, department_id, reason, date, start_time, end_time, purpose, status
+- **Relacionamentos:**
+  - Refere-se a uma sala (`rooms`) (**N:1**)
+  - Refere-se a um departamento (`departments`) (**N:1**)
+
+#### Fluxo de Gestão de Infraestrutura
+1. Cadastro de salas em `rooms`.
+2. Cadastro de recursos em `resources`.
+3. Vinculação de recursos a salas em `room_resources`.
+4. Solicitação e aprovação de reservas especiais de sala em `room_bookings`.
+
+---
+
+## 8. Pagamentos e Finanças
+
+### Entidade: Pagamento (`payments`)
+- **Atributos:** id, amount, payment_date, payment_type_id, status
+- **Relacionamentos:**
+  - Tem tipo de pagamento (`payment_types`) (**N:1**)
+  - Relacionado a pagamento de aluno (`student_payments`) (**1:N**)
+  - Relacionado a pagamento de funcionário (`staff_payments`) (**1:N**)
+  - Relacionado a pagamento de empresa (`company_payments`) (**1:N**)
+
+### Entidade: Tipo de Pagamento (`payment_types`)
+- **Atributos:** id, name
+- **Relacionamentos:**
+  - Relacionado a pagamentos (`payments`) (**1:N**)
+
+### Entidade: Pagamento de Aluno (`student_payments`)
+- **Atributos:** id, payment_id, service_id, student_id, created_at, updated_at
+- **Relacionamentos:**
+  - Refere-se a um pagamento (`payments`) (**N:1**)
+  - Refere-se a um serviço (`services`) (**N:1**)
+  - Refere-se a um aluno (`students`) (**N:1**)
+
+### Entidade: Propina do Aluno (`student_fees`)
+- **Atributos:** id, student_id, amount, due_date, status, payment_id
+- **Relacionamentos:**
+  - Refere-se a um aluno (`students`) (**N:1**)
+  - Gera pagamento de aluno (`student_payments`) (**1:1**)
+
+### Entidade: Pagamento de Funcionário (`staff_payments`)
+- **Atributos:** id, payment_id, staff_id, created_at, updated_at
+- **Relacionamentos:**
+  - Refere-se a um pagamento (`payments`) (**N:1**)
+  - Refere-se a um funcionário (`staff`) (**N:1**)
+
+### Entidade: Pagamento de Empresa (`company_payments`)
+- **Atributos:** id, payment_id, company_id, department_id
+- **Relacionamentos:**
+  - Refere-se a um pagamento (`payments`) (**N:1**)
+  - Refere-se a uma empresa (`companies`) (**N:1**)
+  - Refere-se a um orçamento de departamento (`department_budgets`) (**N:1**)
+
+#### Fluxo de Pagamentos
 1. Geração de transação base em `payments`.
-2. Classificação pelo tipo (`payment_types`).
+2. Classificação pelo tipo em `payment_types`.
 3. Associação específica:
-   * `student_payments` (propinas e serviços do aluno)
-   * `company_payments` (contratos e SLA)
-   * `staff_payments` (salários, bônus, etc.)
+   - `student_payments` (serviços do aluno)
+   - `student_fees` (propinas do aluno)
+   - `company_payments` (contratos/SLA)
+   - `staff_payments` (salários, bônus)
 4. Validação de status (`paid`, `pending`, `failed`).
-5. Registro em `audit_logs` para rastreabilidade.
 
-### Fluxo de Serviços
-1. Criação do serviço em `services` com `service_types`.
-2. Solicitação pelo usuário (`student_payments` ou outra tabela de requisição de serviço).
+---
+
+## 9. Serviços
+
+### Entidade: Serviço (`services`)
+- **Atributos:** id, name, description, value, department_id, service_type_id
+- **Relacionamentos:**
+  - Tem tipo de serviço (`service_types`) (**N:1**)
+  - Recebe pagamento (`student_payments`) (**1:N**)
+  - É avaliado em avaliação de serviço (`service_evaluation`) (**1:N**)
+  - Pertence a um departamento (`departments`) (**N:1**)
+
+### Entidade: Tipo de Serviço (`service_types`)
+- **Atributos:** id, name
+- **Relacionamentos:**
+  - Relacionado a serviços (`services`) (**1:N**)
+
+### Entidade: Avaliação de Serviço (`service_evaluation`)
+- **Atributos:** id, service_id, evaluation_id, score, comments
+- **Relacionamentos:**
+  - Refere-se a um serviço (`services`) (**N:1**)
+  - Refere-se a uma avaliação (`evaluation`) (**N:1**)
+
+#### Fluxo de Serviços
+1. Criação do serviço em `services` com vínculo a `service_types` e departamento.
+2. Solicitação pelo usuário via `student_payments` (ou outra tabela de requisição de serviço).
 3. Pagamento via fluxo de pagamentos.
-4. Execução e posterior avaliação em `service_evaluation`.
+4. Execução do serviço e posterior avaliação em `service_evaluation`.
 
-### Fluxo de Companhias Terceirizadas
-1. Cadastro em `companies`.
-2. Associação a departamentos via `companies_departments`.
-3. Criação de contrato em `companies_contracts` com definição de garantia e `companies_sla`.
-4. Avaliação periódica em `companies_sla_evaluation` (RN05) — possível geração de `fines`.
-5. Processamento de pagamento em `payments` → `company_payments`.
+---
 
+## 10. Avaliações e Performance
 
-## Fluxo de processos
+### Entidade: Avaliação (`evaluation`)
+- **Atributos:** id, title, type, start_date, end_date
+- **Relacionamentos:**
+  - Avalia funcionário (`staff_evaluation`) (**1:N**)
+  - Avalia curso (`course_evaluation`) (**1:N**)
+  - Avalia serviço (`service_evaluation`) (**1:N**)
+  - Gera performance (`performance`) (**1:N**)
 
-### Fluxo de processos de administração
+### Entidade: Avaliação de Funcionário (`staff_evaluation`)
+- **Atributos:** id, staff_id, evaluation_id, score, comments
+- **Relacionamentos:**
+  - Refere-se a um funcionário (`staff`) (**N:1**)
+  - Refere-se a uma avaliação (`evaluation`) (**N:1**)
 
-1. o funcionario e contratado
-2. recebe posicao e roles de permisoes na app
-3. faz avalicao de curso
-4. faz avaliacao de sla (se for dada a posicao)
-5. faz avalicao de funcionario se for chefe de departamento ou coordenador de curso
+### Entidade: Avaliação de Curso (`course_evaluation`)
+- **Atributos:** id, course_id, evaluation_id, score, comments
+- **Relacionamentos:**
+  - Refere-se a um curso (`courses`) (**N:1**)
+  - Refere-se a uma avaliação (`evaluation`) (**N:1**)
 
-### Fluxo de processos aluno 
+### Entidade: Avaliação de Serviço (`service_evaluation`)
+- **Atributos:** id, service_id, evaluation_id, score, comments
+- **Relacionamentos:**
+  - Refere-se a um serviço (`services`) (**N:1**)
+  - Refere-se a uma avaliação (`evaluation`) (**N:1**)
 
-1. O aluno se increve para um curso
-2. O aluno faz a prova de acesso e recebe uma nota
-3. Se aprovado o aluno se matricula em uma turma
-4. O aluno paga a propina
-5. O aluno faz as aulas (frequencia)
-6. O aluno faz as provas
-7. O aluno faz requesicao de servicos
-8. O aluno faz requesicao de emprestimo de itens da biblioteca
-9. O aluno paga emprestimos e servicos
-10. O aluno paga multas
-11. O aluno faz avaliacao de funcionarios, cursos e servicos
-12. O aluno faz avaliacao de curso
-13. O aluno faz avaliacao de funcionario
-14. O aluno faz avaliacao de servico
+### Entidade: Performance (`performance`)
+- **Atributos:** id, evaluation_id, score, date
+- **Relacionamentos:**
+  - Refere-se a uma avaliação (`evaluation`) (**N:1**)
 
-### Fluxo de processos funcionario
+#### Fluxo de Avaliação e Performance
+1. Criação de avaliação em `evaluation`.
+2. Distribuição para avaliados:
+   - Funcionários (`staff_evaluation`)
+   - Cursos (`course_evaluation`)
+   - Serviços (`service_evaluation`)
+3. Submissão de resultados em `performance`.
 
+---
 
-### Fluxo de processos chefe de departamento
-1. Edita informacoes do departamento
-2. 
+## 11. Biblioteca 
 
-### Fluxo de processos coordenador de curso
-1. Edita informacoes do curso
-2. 
+### Entidade: Item de Biblioteca (`library_items`)
+- **Atributos:** título, ISBN, código de barras
+- **Relacionamentos:**
+  - É emprestado em empréstimo (`library_loans`) (**1:N**)
 
-### Fluxo de professor
+### Entidade: Empréstimo (`library_loans`)
+- **Atributos:** data de empréstimo, data de devolução prevista
+- **Relacionamentos:**
+  - Refere-se a um item de biblioteca (`library_items`) (**N:1**)
+  - Refere-se a um usuário (`users`) (**N:1**)
 
-### Fluxo de pagamentos
+#### Fluxo de Biblioteca
+1. Cadastro de item em `library_items`.
+2. Empréstimo/devolução em `library_loans`.
+3. Multas por atraso em `fines` .
 
-### Fluxo de servicos
+---
 
-### Fluxo de companias 
+## 12. Notificações
 
+### Entidade: Notificação (`notifications`)
+- **Atributos:** id, user_id, title, message, date
+- **Relacionamentos:**
+  - Refere-se a um usuário (`users`) (**N:1**)
 
+#### Fluxo de Notificações
+1. Geração de notificação pelo sistema para usuários em `notifications`.
+2. Visualização pelo usuário.
+
+---
+
+## 13. Log de Auditoria
+
+### Entidade: Log de Auditoria (`audit_logs`)
+- **Atributos:** usuário, tabela, operação, data
+- **Relacionamentos:**
+  - Refere-se a um usuário (`users`) (**N:1**)
+
+#### Fluxo de Auditoria
+1. Geração automática de logs em `audit_logs` para operações críticas.
+
+## 14. Gestão de Empresas e SLAs
+
+### Entidade: Acordo de Nível de Serviço (SLA) (`companies_sla`)
+- **Atributos:** id, company_id, sla_name, description, sla_type, target_percentage, penalty_percentage, sla_details, is_active
+- **Relacionamentos:**
+  - Refere-se a uma empresa (`companies`) (**N:1**)
+  - Tem avaliações de SLA (`companies_sla_evaluation`) (**1:N**)
+
+### Entidade: Avaliação de SLA (`companies_sla_evaluation`)
+- **Atributos:** id, company_id, sla_id, evaluation_period, achieved_percentage, penalty_applied, penalty_amount, evaluator_id, feedback
+- **Relacionamentos:**
+  - Refere-se a uma empresa (`companies`) (**N:1**)
+  - Refere-se a um SLA (`companies_sla`) (**N:1**)
+  - Avaliado por um usuário/funcionário (`users`) (**N:1**)
+
+#### Fluxo de Gestão de SLAs
+1. Cadastro de empresas em `companies`.
+2. Definição de Acordos de Nível de Serviço (SLA) em `companies_sla` para cada empresa e tipo de serviço.
+3. Avaliação periódica do cumprimento do SLA em `companies_sla_evaluation`, registrando o percentual alcançado, penalidades e feedback.
+4. Geração de relatórios de desempenho e aplicação de ações corretivas `fines` se necessário.
 

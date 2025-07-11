@@ -120,8 +120,19 @@ BEGIN
         ORDER BY p.payment_date DESC
         LIMIT 1;
 
+        -- Se não houver pagamentos anteriores, usar um valor padrão baseado no SLA
+        IF v_contract_amount IS NULL THEN
+            -- Usar um valor padrão baseado no tipo de SLA ou definir um valor mínimo
+            SET v_contract_amount = 100000.00; -- Valor padrão de 100.000 Kz para contratos sem histórico
+        END IF;
+
         -- Calcular o valor da multa
         SET v_fine_amount = v_contract_amount * (v_penalty_percentage / 100);
+
+        -- Verificar se o valor da multa é válido
+        IF v_fine_amount IS NULL OR v_fine_amount <= 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Erro: Não foi possível calcular o valor da multa. Verifique os parâmetros do SLA.';
+        END IF;
 
         -- Inserir o pagamento da multa na tabela payments
         INSERT INTO payments (amount, payment_method_id, status)

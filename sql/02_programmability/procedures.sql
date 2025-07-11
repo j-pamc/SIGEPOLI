@@ -51,7 +51,7 @@ DELIMITER //
 CREATE PROCEDURE AllocateResourceToRoom(
     IN p_room_id INT,
     IN p_resource_id INT,
-    IN p_status_resources ENUM('available', 'unavailable', 'damaged', 'maintenance', 'lost')
+    IN p_status_resources VARCHAR(20)
 )
 BEGIN
     -- Verifica se a sala existe.
@@ -98,17 +98,22 @@ CREATE PROCEDURE ProcessPayment(
     IN p_amount DECIMAL(10, 2),
     IN p_payment_method_id INT,
     IN p_reference_number VARCHAR(50),
-    IN p_status ENUM('pending', 'completed', 'failed', 'refunded'),
-    IN p_student_id INT DEFAULT NULL,
-    IN p_service_id INT DEFAULT NULL,
-    IN p_company_id INT DEFAULT NULL,
-    IN p_department_budgets_id INT DEFAULT NULL,
-    IN p_approved_by_staff INT DEFAULT NULL,
-    IN p_staff_id INT DEFAULT NULL,
-    IN p_type_of_staff_payment ENUM('salary', 'bonus', 'reimbursement', 'commission', 'other') DEFAULT NULL
+    IN p_status VARCHAR(20),
+    IN p_student_id INT,
+    IN p_service_id INT,
+    IN p_company_id INT,
+    IN p_department_budgets_id INT,
+    IN p_approved_by_staff INT,
+    IN p_staff_id INT,
+    IN p_type_of_staff_payment VARCHAR(20)
 )
 BEGIN
     DECLARE payment_id_val INT;
+
+    -- Verificar se o valor do pagamento é válido
+    IF p_amount IS NULL OR p_amount <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Erro: O valor do pagamento deve ser maior que zero.';
+    END IF;
 
     -- Insere o registro principal do pagamento na tabela `payments`.
     INSERT INTO payments (amount, payment_method_id, reference_number, status)

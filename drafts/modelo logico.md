@@ -2,6 +2,8 @@
 
 Este modelo lógico representa a estrutura do banco de dados SIGEPOLI, detalhando as tabelas, colunas, tipos de dados, chaves primárias (PKs), chaves estrangeiras (FKs) e relacionamentos, conforme implementado nos scripts SQL fornecidos.
 
+Link para diagrama [https://dbdiagram.io/d/Modelo-logico-DER-686bde4ff413ba3508a8a5e6]
+
 ## Convenções:
 
 *   `PK`: Chave Primária

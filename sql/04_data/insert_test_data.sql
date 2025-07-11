@@ -3,6 +3,21 @@
 -- Contexto: ISPTEC, Angola
 -- ==============================================================
 
+-- Limpeza das tabelas para evitar erros de integridade referencial
+-- (Atenção: TRUNCATE remove todos os dados e reinicia auto_increment)
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE grades;          -- Limpa notas (depende de class_schedules)
+TRUNCATE TABLE student_fees;    -- Limpa propinas dos estudantes
+TRUNCATE TABLE payments;        -- Limpa pagamentos
+TRUNCATE TABLE room_resources;  -- Limpa recursos das salas
+TRUNCATE TABLE services;        -- Limpa serviços
+TRUNCATE TABLE class_schedules; -- Limpa horários das turmas
+TRUNCATE TABLE teachers;        -- Limpa professores
+TRUNCATE TABLE staff;           -- Limpa funcionários
+TRUNCATE TABLE students;        -- Limpa alunos
+TRUNCATE TABLE users;           -- Limpa usuários
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- Inserir Usuários (Gerais)
 INSERT INTO users (first_name, last_name, email, password, phone, address, date_of_birth, status, gender, is_verified)
 VALUES
@@ -32,7 +47,9 @@ VALUES
 (1, "STAFF001", "2018-01-10", "full_time", "active", 4, "administrative"), -- João Silva - Secretaria Acadêmica
 (2, "STAFF002", "2017-03-15", "full_time", "active", 5, "administrative"), -- Maria Santos - Tesouraria
 (3, "STAFF003", "2019-09-01", "full_time", "active", 1, "academic"), -- Pedro Costa - Coordenador DEI
-(4, "STAFF004", "2020-02-20", "full_time", "active", 2, "academic"); -- Ana Pereira - Coordenadora DEC
+(4, "STAFF004", "2020-02-20", "full_time", "active", 2, "academic"), -- Ana Pereira - Coordenadora DEC
+(5, "STAFF005", "2016-08-12", "full_time", "active", 1, "academic"), -- Carlos Almeida - Professor DEI
+(6, "STAFF006", "2018-09-25", "full_time", "active", 1, "academic"); -- Sofia Martins - Professora DEI
 
 -- Inserir Professores
 INSERT INTO teachers (staff_id, academic_rank, tenure_status, is_thesis_advisor)
@@ -102,7 +119,36 @@ INSERT INTO students (user_id, student_number, studying, searching)
 VALUES
 (7, "STU2025001", TRUE, FALSE), -- Ricardo Gomes
 (8, "STU2025002", TRUE, TRUE), -- Helena Fernandes
-(9, "STU2025003", TRUE, FALSE); -- Miguel Rodrigues
+(9, "STU2025003", TRUE, FALSE), -- Miguel Rodrigues
+(10, "STU2025004", TRUE, FALSE); -- Laura Oliveira
+
+-- Inserir Resources (Recursos)
+INSERT INTO resources (name, description, responsible_department_id)
+VALUES
+("Projetor", "Projetor multimídia para apresentações", 1),
+("Ar Condicionado", "Sistema de ar condicionado", 4),
+("Computador", "Computador para laboratório", 1);
+
+-- Inserir Service Types (Tipos de Serviços)
+INSERT INTO service_types (name, description)
+VALUES
+("Acadêmico", "Serviços relacionados ao processo acadêmico"),
+("Administrativo", "Serviços administrativos gerais");
+
+-- Inserir Services (Serviços)
+INSERT INTO services (name, description, service_types_id, value, department_id, status)
+VALUES
+("Emissão de Certificado", "Emissão de certificado de conclusão", (SELECT id FROM service_types WHERE name = 'Acadêmico'), 5000.00, 4, "active"),
+("Carteira de Estudante", "Emissão de carteira de estudante", (SELECT id FROM service_types WHERE name = 'Acadêmico'), 2000.00, 4, "active");
+
+-- Inserir Department Budgets (Orçamentos dos Departamentos)
+INSERT INTO department_budgets (department_id, fiscal_year, budget_amount, spent_amount, remaining_amount, on_account)
+VALUES
+(1, 2025, 5000000.00, 0.00, 5000000.00, FALSE), -- DEI
+(2, 2025, 4000000.00, 0.00, 4000000.00, FALSE), -- DEC
+(3, 2025, 3000000.00, 0.00, 3000000.00, FALSE), -- DG
+(4, 2025, 2000000.00, 0.00, 2000000.00, FALSE), -- SA
+(5, 2025, 1500000.00, 0.00, 1500000.00, FALSE); -- TES
 
 -- Inserir student_enrollments (matrículas de alunos em cursos)
 INSERT INTO student_enrollments (student_id, course_id, enrollment_date, status)
@@ -202,28 +248,13 @@ VALUES
 (8, (SELECT id FROM user_roles WHERE code = "STUDENT"), 1), -- Helena Fernandes como Estudante
 (9, (SELECT id FROM user_roles WHERE code = "STUDENT"), 1); -- Miguel Rodrigues como Estudante
 
-
-
-
-
-
-
--- Inserir Anos Acadêmicos
-INSERT INTO academic_years (year, start_date, end_date, current_year)
-VALUES
-(2024, '2024-02-01', '2025-01-31', FALSE),
-(2025, '2025-02-01', '2026-01-31', TRUE);
-
-
-
-
 -- Inserir Disponibilidade de Cursos
-INSERT INTO course_availability (course_id, academic_year_id, vacancies, status)
+-- Tabela correta: course_availability (coluna: student_limit)
+INSERT INTO course_availability (course_id, academic_year, student_limit, prerequisites)
 VALUES
-(1, 2, 50, "open"),
-(2, 2, 40, "open"),
-(3, 2, 30, "closed");
-
+(1, 2025, 50, JSON_ARRAY("Ensino Médio Completo", "Aptidão para Matemática")),
+(2, 2025, 40, JSON_ARRAY("Ensino Médio Completo", "Aptidão para Física")),
+(3, 2025, 30, JSON_ARRAY("Ensino Médio Completo"));
 
 
 

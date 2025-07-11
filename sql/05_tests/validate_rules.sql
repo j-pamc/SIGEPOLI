@@ -1,4 +1,3 @@
-
 -- ==============================================================
 -- VALIDAÇÃO DE REGRAS DE NEGÓCIO
 -- ==============================================================
@@ -17,7 +16,7 @@ JOIN
     class_schedules cs2 ON cs1.teacher_id = cs2.teacher_id
     AND cs1.id < cs2.id -- Para evitar duplicações e comparar com si mesmo
 WHERE
-    JSON_OVERLAPS(cs1.time_slot_ids, cs2.time_slot_ids);
+    JSON_OVERLAPS(cs1.time_slot_ids, cs2.time_slot_ids) = 1;
 
 -- RN02 – Só é permitida matrícula se houver vaga e propina paga.
 -- Teste de cenário: Tentar matricular um aluno sem propina paga (deve falhar)
@@ -32,10 +31,8 @@ WHERE
 SELECT * FROM grades WHERE score < 0 OR score > 20;
 
 -- RN04 – Empresas precisam apresentar garantia válida antes do pagamento.
--- Esta regra é mais complexa de validar via SQL puro sem uma tabela de 
-
-
-garantia. A validação desta regra exigiria uma tabela `company_guarantees` com campos como `company_id`, `guarantee_type`, `issue_date`, `expiration_date`, `status` e uma lógica de aplicação que verificasse a existência de uma garantia ativa antes de processar pagamentos. No contexto atual, a validação seria feita na lógica da aplicação ou em uma procedure mais complexa que consultasse essa tabela.
+-- Esta regra exige uma tabela `company_guarantees` (não implementada no schema atual).
+-- A validação deve ser feita na aplicação ou em procedure específica.
 
 -- RN05 – SLA inferior a 90% gera multa automática.
 -- Esta consulta deve retornar VAZIO se a regra estiver a ser cumprida (ou seja, todas as multas foram aplicadas).

@@ -10,7 +10,7 @@ SELECT
     cs.id AS schedule_id, -- ID do agendamento da turma
     c.name AS class_name, -- Nome da turma
     s.name AS subject_name, -- Nome da disciplina
-    CONCAT(u.first_name, ' ', u.last_name) AS teacher_name, -- Nome completo do professor
+    CONCAT(IFNULL(u.first_name, ''), ' ', IFNULL(u.last_name, '')) AS teacher_name, -- Nome completo do professor
     -- Concatena os horários da turma, formatando o dia da semana e o intervalo de tempo.
     GROUP_CONCAT(CONCAT(ts.day_of_week, ' ', TIME_FORMAT(ts.start_time, '%H:%i'), '-', TIME_FORMAT(ts.end_time, '%H:%i')) ORDER BY ts.day_of_week, ts.start_time SEPARATOR '; ') AS time_slots,
     r.name AS room_name, -- Nome da sala
@@ -24,13 +24,15 @@ JOIN
 JOIN
     teachers t ON cs.teacher_id = t.staff_id
 JOIN
-    users u ON t.staff_id = u.id
+    staff st ON t.staff_id = st.user_id
+JOIN
+    users u ON st.user_id = u.id
 LEFT JOIN
     rooms r ON cs.room_id = r.id
 LEFT JOIN
     time_slots ts ON JSON_CONTAINS(cs.time_slot_ids, CAST(ts.id AS JSON)) -- Junta com time_slots usando JSON_CONTAINS para IDs em formato JSON
 GROUP BY
-    cs.id, c.name, s.name, teacher_name, r.name, cs.status;
+    cs.id, c.name, s.name, u.first_name, u.last_name, r.name, cs.status;
 
 -- ==========================================================================================
 -- View: TeacherWorkloadView
@@ -39,7 +41,7 @@ GROUP BY
 CREATE VIEW TeacherWorkloadView AS
 SELECT
     t.staff_id AS teacher_id, -- ID do professor
-    CONCAT(u.first_name, ' ', u.last_name) AS teacher_name, -- Nome completo do professor
+    CONCAT(IFNULL(u.first_name, ''), ' ', IFNULL(u.last_name, '')) AS teacher_name, -- Nome completo do professor
     s.name AS subject_name, -- Nome da disciplina
     SUM(s.workload_hours) AS total_workload_hours -- Soma das horas de trabalho da disciplina
 FROM
@@ -47,11 +49,13 @@ FROM
 JOIN
     teachers t ON cs.teacher_id = t.staff_id
 JOIN
-    users u ON t.staff_id = u.id
+    staff st ON t.staff_id = st.user_id
+JOIN
+    users u ON st.user_id = u.id
 JOIN
     subjects s ON cs.subject_id = s.id
 GROUP BY
-    t.staff_id, teacher_name, s.name;
+    t.staff_id, u.first_name, u.last_name, s.name;
 
 -- ==========================================================================================
 -- View: DepartmentCostsView
@@ -62,18 +66,18 @@ SELECT
     d.name AS department_name, -- Nome do departamento
     db.fiscal_year, -- Ano fiscal
     db.budget_amount AS total_budget, -- Orçamento total do departamento
-    (SELECT SUM(p.amount) FROM company_payments cp JOIN payments p ON cp.payment_id = p.id WHERE cp.department_budgets_id = db.id) AS spent_budget, -- Valor já gasto pelo departamento
-    (db.budget_amount - (SELECT SUM(p.amount) FROM company_payments cp JOIN payments p ON cp.payment_id = p.id WHERE cp.department_budgets_id = db.id)) AS remaining_budget -- Valor restante do orçamento
+    COALESCE(SUM(p.amount), 0) AS spent_budget, -- Valor já gasto pelo departamento
+    (db.budget_amount - COALESCE(SUM(p.amount), 0)) AS remaining_budget -- Valor restante do orçamento
 FROM
     departments d
 JOIN
     department_budgets db ON d.id = db.department_id
-JOIN
+LEFT JOIN
     company_payments cp ON db.id = cp.department_budgets_id
-JOIN
+LEFT JOIN
     payments p ON cp.payment_id = p.id
 GROUP BY
-    d.name, db.fiscal_year
+    d.name, db.fiscal_year, db.budget_amount, db.id;
 
 
 -- ==========================================================================================
@@ -108,7 +112,7 @@ JOIN
 -- ==========================================================================================
 CREATE VIEW StudentFeeCostsView AS
 SELECT
-    CONCAT(u.first_name, ' ', u.last_name) AS student_name, -- Nome completo do aluno
+    CONCAT(IFNULL(u.first_name, ''), ' ', IFNULL(u.last_name, '')) AS student_name, -- Nome completo do aluno
     cf.amount AS fee_amount, -- Valor da propina
     sf.reference_month, -- Mês de referência da propina
     p.payment_date, -- Data em que o pagamento foi registrado

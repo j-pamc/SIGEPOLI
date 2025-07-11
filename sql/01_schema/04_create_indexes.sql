@@ -146,15 +146,15 @@ CREATE INDEX idx_audit_logs_created_at ON audit_logs (created_at);
 -- ÍNDICES DA BIBLIOTECA
 -- ==========================================================================================
 
--- Tabela: library_items
-CREATE INDEX idx_library_items_barcode ON library_items (barcode);
-CREATE INDEX idx_library_items_title ON library_items (title);
-
 -- Tabela: library_loans
-CREATE INDEX idx_library_loans_item_id ON library_loans (library_item_id);
-CREATE INDEX idx_library_loans_borrower_id ON library_loans (borrower_id);
-CREATE INDEX idx_library_loans_loan_date ON library_loans (loan_date);
-CREATE INDEX idx_library_loans_return_date ON library_loans (return_date);
+-- CREATE INDEX idx_library_loans_item_id ON library_loans (library_item_id);
+-- CREATE INDEX idx_library_loans_borrower_id ON library_loans (borrower_id);
+-- CREATE INDEX idx_library_loans_loan_date ON library_loans (loan_date);
+-- CREATE INDEX idx_library_loans_return_date ON library_loans (return_date);
+
+-- Tabela: library_items
+-- CREATE INDEX idx_library_items_barcode ON library_items (barcode);
+-- CREATE INDEX idx_library_items_title ON library_items (title);
 
 -- ==========================================================================================
 -- ÍNDICES DE NOTIFICAÇÕES
@@ -189,7 +189,7 @@ CREATE INDEX idx_user_role_assignments_role_id ON user_role_assignments (role_id
 
 -- Tabela: department_budgets
 CREATE INDEX idx_department_budgets_department_id ON department_budgets (department_id);
-CREATE INDEX idx_department_budgets_academic_year ON department_budgets (academic_year);
+CREATE INDEX idx_department_budgets_fiscal_year ON department_budgets (fiscal_year);
 
 -- Tabela: staff_positions
 CREATE INDEX idx_staff_positions_user_id ON staff_positions (user_id);
@@ -271,15 +271,7 @@ CREATE INDEX idx_resources_responsible_department_id ON resources (responsible_d
 
 -- Tabela: rooms
 CREATE INDEX idx_rooms_name ON rooms (name);
-CREATE INDEX idx_rooms_localization ON rooms (localization);
-
--- Tabela: library_loans
-CREATE INDEX idx_library_loans_loan_date ON library_loans (loan_date);
-CREATE INDEX idx_library_loans_return_date ON library_loans (return_date);
-
--- Tabela: library_items
-CREATE INDEX idx_library_items_barcode ON library_items (barcode);
-CREATE INDEX idx_library_items_title ON library_items (title);
+CREATE INDEX idx_rooms_localization ON rooms (localization(100));
 
 -- Tabela: performance
 CREATE INDEX idx_performance_evaluation_id ON performance (evaluation_id);
@@ -289,27 +281,28 @@ CREATE INDEX idx_performance_evaluator_id ON performance (evaluator_id);
 CREATE INDEX idx_audit_logs_table_name_operation_type ON audit_logs (table_name, operation_type);
 
 -- Tabela: companies_contracts
-CREATE INDEX idx_companies_contracts_start_date ON companies_contracts (start_date);
-CREATE INDEX idx_companies_contracts_end_date ON companies_contracts (end_date);
+CREATE INDEX idx_companies_contracts_started_at ON companies_contracts (started_at);
+CREATE INDEX idx_companies_contracts_ended_at ON companies_contracts (ended_at);
 
 -- Tabela: companies_sla_evaluation
-CREATE INDEX idx_companies_sla_evaluation_evaluation_date ON companies_sla_evaluation (evaluation_date);
+-- CREATE INDEX idx_companies_sla_evaluation_evaluation_date ON companies_sla_evaluation (evaluation_date);
 
 -- Tabela: student_enrollments
 CREATE INDEX idx_student_enrollments_enrollment_date ON student_enrollments (enrollment_date);
 
 -- Tabela: staff_leaves
-CREATE INDEX idx_staff_leaves_start_date ON staff_leaves (start_date);
-CREATE INDEX idx_staff_leaves_end_date ON staff_leaves (end_date);
+-- CREATE INDEX idx_staff_leaves_start_date ON staff_leaves (start_date);
+-- CREATE INDEX idx_staff_leaves_end_date ON staff_leaves (end_date);
 
 -- Tabela: payments
 CREATE INDEX idx_payments_payment_date ON payments (payment_date);
 
 -- Tabela: fines
-CREATE INDEX idx_fines_fine_date ON fines (fine_date);
+-- CREATE INDEX idx_fines_fine_date ON fines (fine_date);
+-- Nota: Esta tabela não possui coluna fine_date
 
 -- Tabela: course_availability
-CREATE INDEX idx_course_availability_academic_year ON course_availability (academic_year);
+-- CREATE INDEX idx_course_availability_academic_year ON course_availability (academic_year);
 
 -- Tabela: grades
 CREATE INDEX idx_grades_score ON grades (score);
@@ -318,45 +311,51 @@ CREATE INDEX idx_grades_score ON grades (score);
 CREATE INDEX idx_companies_sla_target_percentage ON companies_sla (target_percentage);
 
 -- Tabela: departments
-CREATE INDEX idx_departments_budget_amount ON departments (budget_amount);
+-- CREATE INDEX idx_departments_budget_amount ON departments (budget_amount);
 
 -- Tabela: academic_qualifications
 CREATE INDEX idx_academic_qualifications_qualification_type ON academic_qualifications (qualification_type);
 
 -- Tabela: user_identification
 CREATE INDEX idx_user_identification_issue_date ON user_identification (issue_date);
-CREATE INDEX idx_user_identification_expiry_date ON user_identification (expiry_date);
+-- CREATE INDEX idx_user_identification_expiry_date ON user_identification (expiry_date);
 
 -- Tabela: user_health
-CREATE INDEX idx_user_health_blood_type ON user_health (blood_type);
+-- CREATE INDEX idx_user_health_blood_type ON user_health (blood_type);
 
 -- Tabela: staff_positions
-CREATE INDEX idx_staff_positions_start_date ON staff_positions (start_date);
-CREATE INDEX idx_staff_positions_end_date ON staff_positions (end_date);
+-- CREATE INDEX idx_staff_positions_start_date ON staff_positions (start_date);
+-- CREATE INDEX idx_staff_positions_end_date ON staff_positions (end_date);
 
 -- Tabela: evaluation
-CREATE INDEX idx_evaluation_evaluation_date ON evaluation (evaluation_date);
+-- CREATE INDEX idx_evaluation_evaluation_date ON evaluation (evaluation_date);
 
 -- Tabela: classes_attended
-CREATE INDEX idx_classes_attended_attendance_date ON classes_attended (attendance_date);
+-- CREATE INDEX idx_classes_attended_attendance_date ON classes_attended (attendance_date);
 
 -- Tabela: course_access
-CREATE INDEX idx_course_access_access_date ON course_access (access_date);
+-- CREATE INDEX idx_course_access_access_date ON course_access (access_date);
+-- Nota: Esta tabela não possui coluna access_date
 
 -- Tabela: service_evaluation
-CREATE INDEX idx_service_evaluation_evaluation_date ON service_evaluation (evaluation_date);
+-- CREATE INDEX idx_service_evaluation_evaluation_date ON service_evaluation (evaluation_date);
 
 -- Tabela: services
 CREATE INDEX idx_services_value ON services (value);
 
 -- Tabela: company_payments
-CREATE INDEX idx_company_payments_payment_date ON company_payments (payment_date);
+-- CREATE INDEX idx_company_payments_payment_date ON company_payments (payment_date);
+-- Nota: Esta tabela não possui coluna payment_date diretamente, 
+-- mas referencia payments através de payment_id
 
 -- Tabela: staff_payments
-CREATE INDEX idx_staff_payments_payment_date ON staff_payments (payment_date);
+-- CREATE INDEX idx_staff_payments_payment_date ON staff_payments (payment_date);
+-- Nota: Esta tabela não possui coluna payment_date diretamente, 
+-- mas referencia payments através de payment_id
 
 -- Tabela: companies_departments
-CREATE INDEX idx_companies_departments_assignment_date ON companies_departments (assignment_date);
+-- CREATE INDEX idx_companies_departments_assignment_date ON companies_departments (assignment_date);
+-- Nota: Esta tabela não possui coluna assignment_date
 
 -- Tabela: student_fees
 CREATE INDEX idx_student_fees_reference_month ON student_fees (reference_month);

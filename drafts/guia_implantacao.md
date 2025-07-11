@@ -101,13 +101,13 @@ cd /caminho/para/sigepoli
 mysql -u root -p -h localhost
 
 # Executar script completo
-SOURCE scripts\deploy_completo.sql 
+SOURCE scripts/deploy_completo.sql
 
 # Ou script monolítico
-SOURCE scripts\deploy_monolitico.sql 
+SOURCE scripts/deploy_monolitico.sql 
 
 # Ou script monolítico
-SOURCE scripts\reset_database.sql 
+SOURCE scripts/reset_database.sql 
 ```
 
 ### Método 2: Executar scripts individuais
